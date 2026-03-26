@@ -88,6 +88,19 @@ export default function Home() {
     setShowWelcomeGuide(true);
   }, []);
 
+  // Keyboard listener for closing modals with ESC
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setShowWelcomeGuide(false);
+        setShowSetupHelp(false);
+        setFsOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   const handleMonthChange = (newMonth: number) => {
     const oldLastDay = getLastDayStr(year, month);
     setMonth(newMonth);
@@ -298,7 +311,7 @@ export default function Home() {
                   <h2 className="text-xs font-semibold uppercase tracking-wider text-zinc-500">Notion Target</h2>
                   <button onClick={() => setShowSetupHelp(true)} className="flex items-center gap-1 rounded-full bg-blue-500/10 px-2.5 py-1 text-[10px] font-semibold text-blue-400 transition hover:bg-blue-500/20 hover:text-blue-300">
                     <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                    How to Setup
+                    How to Get Notion API Key
                   </button>
                 </div>
 
@@ -541,7 +554,7 @@ export default function Home() {
                 <div className="rounded-lg bg-indigo-500/20 p-2 text-indigo-400">🎯</div>
                 <div>
                   <h4 className="text-sm font-semibold text-zinc-200">2. Hubungkan ke Notion</h4>
-                  <p className="mt-1 text-xs leading-relaxed text-zinc-400">Masukkan <strong>API Key</strong> Notion rahasia Anda ke dalam kolom yang tersedia (klik <em>How to Setup</em> jika Anda belum punya). Selanjutnya, masukkan <strong className="text-zinc-300">Page ID</strong> atau cukup tekan tombol <strong className="text-blue-400">Search</strong> untuk mencari halaman tabel kerja Anda secara otomatis.</p>
+                  <p className="mt-1 text-xs leading-relaxed text-zinc-400">Masukkan <strong>API Key</strong> Notion rahasia Anda ke dalam kolom yang tersedia (klik <em>How to Get Notion API Key</em> jika Anda belum punya). Selanjutnya, masukkan <strong className="text-zinc-300">Page ID</strong> atau cukup tekan tombol <strong className="text-blue-400">Search</strong> untuk mencari halaman tabel kerja Anda secara otomatis.</p>
                 </div>
               </div>
 
