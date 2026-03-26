@@ -58,7 +58,7 @@ export async function generateTimesheet(
   const templatePath =
     signatures?.templatePath ||
     process.env.TEMPLATE_PATH ||
-    "/mnt/d/XL/timesheet/Polosan Oke Mantapp.xlsx";
+    path.join(process.cwd(), "public/template.xlsx");
 
   const wb = new ExcelJS.Workbook();
   await wb.xlsx.readFile(templatePath);

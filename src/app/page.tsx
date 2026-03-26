@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 const MONTHS = [
   "January", "February", "March", "April", "May", "June",
@@ -34,8 +34,10 @@ const translations = {
     searching: "...",
     noPagesFound: "No timesheet pages found.",
     fileStorage: "File Storage",
-    excelTemplate: "Excel Template",
-    selectTemplate: "Select Excel template file...",
+    excelTemplate: "Excel Template (Optional)",
+    templateDefault: "Default Built-in",
+    templateCustom: "Custom (.xlsx)",
+    selectTemplate: "Default template used. Choose to override...",
     choose: "Choose File",
     outputDir: "Output Directory",
     selectOutput: "Select output location...",
@@ -46,7 +48,8 @@ const translations = {
     appBy: "Approved By",
     appNamePlaceholder: "Buddy Name",
     date: "Date",
-    setEom: "Set End of Month",
+    setEom: "End of Month",
+    setToday: "Today",
     digitalSig: "Digital Signature (Optional Image)",
     generateBtn: "GENERATE EXCEL",
     generating: "GENERATING TIMESHEET...",
@@ -105,8 +108,10 @@ const translations = {
     searching: "Mencari...",
     noPagesFound: "Halaman timesheet tidak ditemukan.",
     fileStorage: "Penyimpanan File",
-    excelTemplate: "Template Excel",
-    selectTemplate: "Pilih file template Excel...",
+    excelTemplate: "Template Excel (Opsional)",
+    templateDefault: "Bawaan (Default)",
+    templateCustom: "Custom (.xlsx)",
+    selectTemplate: "Template bawaan akan digunakan...",
     choose: "Pilih File",
     outputDir: "Direktori Output",
     selectOutput: "Pilih lokasi penyimpanan...",
@@ -117,7 +122,8 @@ const translations = {
     appBy: "Disetujui Oleh",
     appNamePlaceholder: "Nama Buddy/Atasan",
     date: "Tanggal",
-    setEom: "Set Akhir Bulan",
+    setEom: "Akhir Bulan",
+    setToday: "Hari Ini",
     digitalSig: "Tanda Tangan Digital (Opsional)",
     generateBtn: "BUAT EXCEL",
     generating: "MEMBUAT TIMESHEET...",
@@ -209,6 +215,9 @@ export default function Home() {
 
   const [showSetupHelp, setShowSetupHelp] = useState(false);
   const [showWelcomeGuide, setShowWelcomeGuide] = useState(false);
+  const signatureRef = useRef<HTMLInputElement>(null);
+
+  const [useCustomTemplate, setUseCustomTemplate] = useState(false);
 
   // Custom status
   const [status, setStatus] = useState<{ type: "success" | "error" | "info"; message: string; } | null>(null);
@@ -229,6 +238,9 @@ export default function Home() {
 
     const savedTemplatePath = localStorage.getItem("timesheet_templatePath");
     if (savedTemplatePath) setTemplatePath(savedTemplatePath);
+
+    const savedUseCustomTemplate = localStorage.getItem("timesheet_useCustomTemplate");
+    if (savedUseCustomTemplate) setUseCustomTemplate(savedUseCustomTemplate === "true");
 
     const savedOutputDir = localStorage.getItem("timesheet_outputDir");
     if (savedOutputDir) setOutputDir(savedOutputDir);
@@ -423,6 +435,7 @@ export default function Home() {
       "timesheet_approverName",
       "timesheet_notionApiKey",
       "timesheet_templatePath",
+      "timesheet_useCustomTemplate",
       "timesheet_outputDir",
       "timesheet_outputFilenameFormat"
     ];
@@ -435,6 +448,8 @@ export default function Home() {
     setSubmitterSignature(null);
     setApproverName("");
     setTemplatePath("");
+    setUseCustomTemplate(false);
+    if (signatureRef.current) signatureRef.current.value = "";
     setOutputDir("");
     setOutputFilenameFormat("{YOUR-VENDOR}_{YOUR-NAME}_TIMESHEET_{MM}_{YYYY}");
     
@@ -587,22 +602,56 @@ export default function Home() {
               <h2 className="text-xs font-semibold uppercase tracking-wider text-zinc-500">{t.fileStorage}</h2>
 
               <div>
-                <label className="mb-1 block text-[11px] font-medium text-zinc-400">{t.excelTemplate}</label>
-                <div className="flex gap-2">
-                  <input
-                    readOnly
-                    type="text"
-                    value={templatePath}
-                    placeholder={t.selectTemplate}
-                    className="flex-1 min-w-0 rounded-xl border border-zinc-700 bg-zinc-800/40 px-3 py-2 text-xs text-zinc-300 outline-none"
-                  />
-                  <button
-                    onClick={() => openFileBrowser("file")}
-                    className="shrink-0 whitespace-nowrap rounded-xl bg-blue-600 hover:bg-blue-500 px-4 py-2 text-xs font-semibold text-white shadow-sm transition"
-                  >
-                    {t.choose}
-                  </button>
+                <label className="mb-2 block text-[11px] font-medium text-zinc-400">{t.excelTemplate}</label>
+                <div className="mb-2 flex items-center gap-5">
+                  <label className="flex items-center gap-2 cursor-pointer group">
+                    <input 
+                      type="radio" 
+                      name="templateType"
+                      checked={!useCustomTemplate} 
+                      onChange={() => {
+                        setUseCustomTemplate(false);
+                        localStorage.setItem("timesheet_useCustomTemplate", "false");
+                        setTemplatePath("");
+                        localStorage.removeItem("timesheet_templatePath");
+                      }} 
+                      className="h-3.5 w-3.5 accent-blue-500 bg-zinc-800 border-zinc-700 transition" 
+                    />
+                    <span className="text-xs font-semibold text-zinc-300 group-hover:text-blue-400 transition-colors">{t.templateDefault}</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer group">
+                    <input 
+                      type="radio" 
+                      name="templateType"
+                      checked={useCustomTemplate} 
+                      onChange={() => {
+                        setUseCustomTemplate(true);
+                        localStorage.setItem("timesheet_useCustomTemplate", "true");
+                      }} 
+                      className="h-3.5 w-3.5 accent-blue-500 bg-zinc-800 border-zinc-700 transition" 
+                    />
+                    <span className="text-xs font-semibold text-zinc-300 group-hover:text-blue-400 transition-colors">{t.templateCustom}</span>
+                  </label>
                 </div>
+                
+                {useCustomTemplate && (
+                  <div className="flex gap-2 mt-3 animate-in fade-in slide-in-from-top-1 duration-200">
+                    <input
+                      readOnly
+                      type="text"
+                      value={templatePath}
+                      placeholder={t.selectTemplate}
+                      className="flex-1 min-w-0 rounded-xl border border-zinc-700 bg-zinc-800/40 px-3 py-2 text-xs text-zinc-300 outline-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => openFileBrowser("file")}
+                      className="shrink-0 whitespace-nowrap rounded-xl bg-blue-600 hover:bg-blue-500 px-4 py-2 text-xs font-semibold text-white shadow-sm transition"
+                    >
+                      {t.choose}
+                    </button>
+                  </div>
+                )}
               </div>
 
               <div>
@@ -659,7 +708,11 @@ export default function Home() {
                 <div>
                   <div className="mb-1.5 flex items-center justify-between">
                     <label className="text-xs font-medium text-zinc-400">{t.date}</label>
-                    <button onClick={() => setSubmitterDate(getLastDayStr(year, month))} className="text-[10px] text-blue-400 hover:text-blue-300">{t.setEom}</button>
+                    <div className="flex gap-2">
+                       <button onClick={() => setSubmitterDate(getTodayStr())} className="text-[10px] text-blue-400 hover:text-blue-300 font-medium">{t.setToday}</button>
+                       <span className="text-zinc-700">|</span>
+                       <button onClick={() => setSubmitterDate(getLastDayStr(year, month))} className="text-[10px] text-blue-400 hover:text-blue-300 font-medium">{t.setEom}</button>
+                    </div>
                   </div>
                   <input
                     type="text"
@@ -684,7 +737,11 @@ export default function Home() {
                 <div>
                   <div className="mb-1.5 flex items-center justify-between">
                     <label className="text-xs font-medium text-zinc-400">{t.date}</label>
-                    <button onClick={() => setApproverDate(getLastDayStr(year, month))} className="text-[10px] text-blue-400 hover:text-blue-300">{t.setEom}</button>
+                    <div className="flex gap-2">
+                       <button onClick={() => setApproverDate(getTodayStr())} className="text-[10px] text-blue-400 hover:text-blue-300 font-medium">{t.setToday}</button>
+                       <span className="text-zinc-700">|</span>
+                       <button onClick={() => setApproverDate(getLastDayStr(year, month))} className="text-[10px] text-blue-400 hover:text-blue-300 font-medium">{t.setEom}</button>
+                    </div>
                   </div>
                   <input
                     type="text"
@@ -702,6 +759,7 @@ export default function Home() {
                 <input
                   id="signature-upload"
                   type="file"
+                  ref={signatureRef}
                   accept="image/png, image/jpeg"
                   onChange={handleSignatureUpload}
                   className="text-xs text-zinc-400 file:mr-4 file:cursor-pointer file:rounded-xl file:border-0 file:bg-zinc-700 file:px-4 file:py-2 file:text-xs file:font-semibold file:text-zinc-200 hover:file:bg-zinc-600 transition"
