@@ -17,6 +17,10 @@ A modern, fast, and beautifully designed web application that automatically conv
 - **Custom Native File Browser:** Avoids strict browser restrictions by utilizing a custom Next.js API-based local file picker—select custom `.xlsx` templates and exact output directories with ease.
 - **Digital Signatures:** Allows submittors and approvers to digitally stamp their signatures straight into the Excel layout.
 - **Premium Glassmorphism UI:** Built using Tailwind CSS with dark-mode optimizations, subtle gradients, animations, and an immersive user experience.
+- **Bilingual Interface (ENG/ID):** Seamlessly switch between English and Indonesian languages with an intuitive and visually responsive toggle.
+- **Dynamic File Name Formatting:** Customize the generated Excel filename directly, supporting variables like `{MM}` and `{YYYY}`.
+- **Auto-Save Configuration:** Remembers all your inputs, paths, names, language selection (via `localStorage`) so you never have to retype them.
+- **Smart Date Actions:** One-click 'Set End of Month' action to automatically fill submission and approval dates for the selected period.
 - **In-App Guided Setup:** A built-in user guide to help users connect the Notion API in minutes directly from the browser.
 
 ## 🛠️ Tech Stack
