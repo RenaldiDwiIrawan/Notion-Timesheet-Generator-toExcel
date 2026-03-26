@@ -19,7 +19,8 @@ export async function POST(request: NextRequest) {
       approverDate,
       templatePath,
       outputFilenameFormat,
-      outputDir
+      outputDir,
+      notionApiKey
     } = await request.json();
 
     if (!pageId || !year || !month) {
@@ -30,7 +31,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 1. Fetch data from Notion
-    const entries = await fetchTimesheetFromPage(pageId);
+    const entries = await fetchTimesheetFromPage(pageId, notionApiKey);
 
     if (entries.length === 0) {
       return NextResponse.json(

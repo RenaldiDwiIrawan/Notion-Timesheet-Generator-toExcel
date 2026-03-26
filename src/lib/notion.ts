@@ -6,8 +6,6 @@ export interface TimesheetEntry {
   tasks: string; // the full task text
 }
 
-const notion = new Client({ auth: process.env.NOTION_API_KEY });
-
 const NOTION_API_BASE = "https://api.notion.com/v1";
 const NOTION_VERSION = "2022-06-28";
 
@@ -15,11 +13,12 @@ const NOTION_VERSION = "2022-06-28";
  * Raw fetch helper for Notion API (SDK v5 doesn't expose databases.query)
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function notionFetch(path: string, body?: object): Promise<any> {
+async function notionFetch(path: string, body?: object, apiKey?: string): Promise<any> {
+  const token = apiKey || process.env.NOTION_API_KEY;
   const resp = await fetch(`${NOTION_API_BASE}/${path}`, {
     method: body ? "POST" : "GET",
     headers: {
-      Authorization: `Bearer ${process.env.NOTION_API_KEY}`,
+      Authorization: `Bearer ${token}`,
       "Notion-Version": NOTION_VERSION,
       "Content-Type": "application/json",
     },
@@ -39,25 +38,26 @@ async function notionFetch(path: string, body?: object): Promise<any> {
  * Supports databases with "tanggal/hari" (title) and "i do" (rich_text) columns.
  */
 export async function fetchTimesheetFromPage(
-  pageId: string
+  pageId: string,
+  apiKey?: string
 ): Promise<TimesheetEntry[]> {
   // First, determine if this is a database or a page
-  const type = await detectType(pageId);
+  const type = await detectType(pageId, apiKey);
 
   if (type === "database") {
-    return fetchFromDatabase(pageId);
+    return fetchFromDatabase(pageId, apiKey);
   }
 
   // If it's a page, look for a child database or table inside it
-  return fetchFromPageBlocks(pageId);
+  return fetchFromPageBlocks(pageId, apiKey);
 }
 
 /**
  * Detect whether the given ID is a database or a page.
  */
-async function detectType(id: string): Promise<"database" | "page"> {
+async function detectType(id: string, apiKey?: string): Promise<"database" | "page"> {
   try {
-    await notionFetch(`databases/${id}`);
+    await notionFetch(`databases/${id}`, undefined, apiKey);
     return "database";
   } catch {
     return "page";
@@ -68,7 +68,7 @@ async function detectType(id: string): Promise<"database" | "page"> {
  * Fetch timesheet data from a Notion database.
  * Properties: "tanggal/hari" (title), "i do" (rich_text)
  */
-async function fetchFromDatabase(dbId: string): Promise<TimesheetEntry[]> {
+async function fetchFromDatabase(dbId: string, apiKey?: string): Promise<TimesheetEntry[]> {
   const entries: TimesheetEntry[] = [];
   let hasMore = true;
   let startCursor: string | undefined;
@@ -78,7 +78,7 @@ async function fetchFromDatabase(dbId: string): Promise<TimesheetEntry[]> {
     const body: any = { page_size: 100 };
     if (startCursor) body.start_cursor = startCursor;
 
-    const data = await notionFetch(`databases/${dbId}/query`, body);
+    const data = await notionFetch(`databases/${dbId}/query`, body, apiKey);
 
     for (const row of data.results) {
       const props = row.properties;
@@ -113,14 +113,15 @@ async function fetchFromDatabase(dbId: string): Promise<TimesheetEntry[]> {
  * Fetch timesheet data from a page containing a table block.
  */
 async function fetchFromPageBlocks(
-  pageId: string
+  pageId: string,
+  apiKey?: string
 ): Promise<TimesheetEntry[]> {
-  const blocks = await getAllBlocks(pageId);
+  const blocks = await getAllBlocks(pageId, apiKey);
 
   // Look for child_database first, then table
   const childDb = blocks.find((b) => b.type === "child_database");
   if (childDb) {
-    return fetchFromDatabase(childDb.id);
+    return fetchFromDatabase(childDb.id, apiKey);
   }
 
   const tableBlock = blocks.find((b) => b.type === "table");
@@ -130,7 +131,7 @@ async function fetchFromPageBlocks(
     );
   }
 
-  const rows = await getAllBlocks(tableBlock.id);
+  const rows = await getAllBlocks(tableBlock.id, apiKey);
   const entries: TimesheetEntry[] = [];
 
   for (const row of rows) {
@@ -166,7 +167,7 @@ async function fetchFromPageBlocks(
 /**
  * Search for timesheet databases and pages in the workspace.
  */
-export async function searchTimesheetPages(): Promise<
+export async function searchTimesheetPages(apiKey?: string): Promise<
   { id: string; title: string }[]
 > {
   const results: { id: string; title: string }[] = [];
@@ -176,7 +177,7 @@ export async function searchTimesheetPages(): Promise<
     query: "Timesheet",
     filter: { property: "object", value: "database" },
     sort: { direction: "descending", timestamp: "last_edited_time" },
-  });
+  }, apiKey);
 
   for (const db of dbData.results) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -188,7 +189,8 @@ export async function searchTimesheetPages(): Promise<
   }
 
   // Search for pages too
-  const pageResponse = await notion.search({
+  const client = new Client({ auth: apiKey || process.env.NOTION_API_KEY });
+  const pageResponse = await client.search({
     query: "Timesheet",
     filter: { property: "object", value: "page" },
     sort: { direction: "descending", timestamp: "last_edited_time" },
@@ -216,13 +218,15 @@ export async function searchTimesheetPages(): Promise<
 // --- Helper functions ---
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function getAllBlocks(blockId: string): Promise<any[]> {
+async function getAllBlocks(blockId: string, apiKey?: string): Promise<any[]> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const blocks: any[] = [];
   let cursor: string | undefined;
+  
+  const client = new Client({ auth: apiKey || process.env.NOTION_API_KEY });
 
   do {
-    const response = await notion.blocks.children.list({
+    const response = await client.blocks.children.list({
       block_id: blockId,
       start_cursor: cursor,
       page_size: 100,

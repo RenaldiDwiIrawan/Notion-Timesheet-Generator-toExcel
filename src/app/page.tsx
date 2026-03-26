@@ -26,6 +26,7 @@ export default function Home() {
   const [pages, setPages] = useState<NotionPage[]>([]);
   const [loading, setLoading] = useState(false);
   const [searching, setSearching] = useState(false);
+  const [notionApiKey, setNotionApiKey] = useState("");
 
   // Signature fields state
   const getLastDayStr = (y: number, m: number) => {
@@ -40,7 +41,7 @@ export default function Home() {
     });
   };
 
-  const [submitterName, setSubmitterName] = useState("Renaldi Dwi Irawan");
+  const [submitterName, setSubmitterName] = useState("");
   const [submitterDate, setSubmitterDate] = useState(getLastDayStr(year, month));
   const [submitterSignature, setSubmitterSignature] = useState<string | null>(null);
   const [approverName, setApproverName] = useState("");
@@ -48,12 +49,12 @@ export default function Home() {
 
   const [templatePath, setTemplatePath] = useState("");
   const [outputDir, setOutputDir] = useState("");
-  const [outputFilenameFormat, setOutputFilenameFormat] = useState("ADL_RENALDI_DWI_IRAWAN_TIMESHEET_{MMM}_{YYYY}");
+  const [outputFilenameFormat, setOutputFilenameFormat] = useState("{YOUR-VENDOR}_{YOUR-NAME}_TIMESHEET_{MM}_{YYYY}");
 
   // File Browser State
   const [fsOpen, setFsOpen] = useState(false);
   const [fsMode, setFsMode] = useState<"file" | "directory" | null>(null);
-  const [fsPath, setFsPath] = useState("/mnt/d");
+  const [fsPath, setFsPath] = useState("/");
   const [fsEntries, setFsEntries] = useState<FSEntry[]>([]);
   const [fsLoading, setFsLoading] = useState(false);
 
@@ -67,15 +68,18 @@ export default function Home() {
   useEffect(() => {
     const savedSubmitterName = localStorage.getItem("timesheet_submitterName");
     if (savedSubmitterName) setSubmitterName(savedSubmitterName);
-    
+
     const savedApproverName = localStorage.getItem("timesheet_approverName");
     if (savedApproverName) setApproverName(savedApproverName);
 
+    const savedNotionApiKey = localStorage.getItem("timesheet_notionApiKey");
+    if (savedNotionApiKey) setNotionApiKey(savedNotionApiKey);
+
     const savedTemplatePath = localStorage.getItem("timesheet_templatePath");
-    if (savedTemplatePath) setTemplatePath(savedTemplatePath); else setTemplatePath("/mnt/d/XL/timesheet/Polosan Oke Mantapp.xlsx");
+    if (savedTemplatePath) setTemplatePath(savedTemplatePath);
 
     const savedOutputDir = localStorage.getItem("timesheet_outputDir");
-    if (savedOutputDir) setOutputDir(savedOutputDir); else setOutputDir("/mnt/d/XL/timesheet");
+    if (savedOutputDir) setOutputDir(savedOutputDir);
 
     const savedOutputFilenameFormat = localStorage.getItem("timesheet_outputFilenameFormat");
     if (savedOutputFilenameFormat) setOutputFilenameFormat(savedOutputFilenameFormat);
@@ -118,10 +122,10 @@ export default function Home() {
   const openFileBrowser = (mode: "file" | "directory") => {
     setFsMode(mode);
     setFsOpen(true);
-    let startPath = "/mnt/d";
-    if (mode === "file" && templatePath) startPath = templatePath.substring(0, templatePath.lastIndexOf('/')) || "/mnt/d";
+    let startPath = "/";
+    if (mode === "file" && templatePath) startPath = templatePath.substring(0, templatePath.lastIndexOf('/')) || "/";
     if (mode === "directory" && outputDir) startPath = outputDir;
-    
+
     loadDir(startPath);
   };
 
@@ -132,13 +136,13 @@ export default function Home() {
       const data = await res.json();
       if (data.error) throw new Error();
       setFsPath(data.currentPath);
-      
+
       const files = data.files;
       // Filter out non-xlsx if we are in file mode, except directories
-      const filtered = fsMode === "file" 
+      const filtered = fsMode === "file"
         ? files.filter((f: any) => f.isDirectory || f.name.endsWith(".xlsx"))
         : files;
-      
+
       if (data.parent) {
         setFsEntries([{ name: "..", path: data.parent, isDirectory: true }, ...filtered]);
       } else {
@@ -166,7 +170,9 @@ export default function Home() {
     setSearching(true);
     setStatus(null);
     try {
-      const res = await fetch("/api/notion-pages");
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (notionApiKey) headers["x-notion-api-key"] = notionApiKey;
+      const res = await fetch("/api/notion-pages", { headers });
       const data = await res.json();
       if (data.error) {
         setStatus({ type: "error", message: data.error });
@@ -200,6 +206,7 @@ export default function Home() {
           submitterName, submitterDate, submitterSignature,
           approverName, approverDate,
           templatePath, outputDir, outputFilenameFormat,
+          notionApiKey
         }),
       });
 
@@ -239,7 +246,7 @@ export default function Home() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-900 bg-gradient-to-br from-zinc-950 via-gray-900 to-black p-4 text-zinc-100 font-sans">
       <main className="w-full max-w-4xl rounded-3xl bg-zinc-900/40 border border-zinc-800 p-8 shadow-2xl backdrop-blur-xl transition-all relative overflow-hidden">
-        
+
         {/* Glow Effects */}
         <div className="pointer-events-none absolute -top-32 -left-32 h-64 w-64 rounded-full bg-blue-600/20 blur-3xl"></div>
         <div className="pointer-events-none absolute -bottom-32 -right-32 h-64 w-64 rounded-full bg-purple-600/20 blur-3xl"></div>
@@ -263,7 +270,7 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-zinc-900/50 p-6 rounded-2xl border border-zinc-800/80 shadow-inner">
-            
+
             {/* Period Selection */}
             <div className="space-y-4">
               <h2 className="text-xs font-semibold uppercase tracking-wider text-zinc-500">Period</h2>
@@ -294,6 +301,21 @@ export default function Home() {
                     How to Setup
                   </button>
                 </div>
+
+                <div className="mb-3">
+                  <label className="mb-1 block text-[11px] font-medium text-zinc-400">API Key Override (Optional)</label>
+                  <input
+                    type="password"
+                    value={notionApiKey}
+                    onChange={(e) => {
+                      setNotionApiKey(e.target.value);
+                      localStorage.setItem("timesheet_notionApiKey", e.target.value);
+                    }}
+                    placeholder="Notion API Key"
+                    className="w-full rounded-xl border border-zinc-700 bg-zinc-800/80 px-4 py-2 text-sm text-zinc-200 outline-none focus:border-blue-500 transition-all placeholder:text-zinc-500"
+                  />
+                </div>
+
                 <div className="flex gap-2">
                   <input
                     type="text"
@@ -310,16 +332,15 @@ export default function Home() {
                     {searching ? "..." : "Search"}
                   </button>
                 </div>
-                
+
                 {pages.length > 0 && (
                   <div className="mt-2 max-h-32 overflow-y-auto rounded-xl border border-zinc-700/50 bg-zinc-800/40 p-1">
                     {pages.map((page) => (
                       <button
                         key={page.id}
                         onClick={() => setPageId(page.id)}
-                        className={`w-full rounded-lg px-3 py-2 text-left text-sm transition ${
-                          pageId === page.id ? "bg-blue-500/20 text-blue-300" : "text-zinc-300 hover:bg-zinc-700/50"
-                        }`}
+                        className={`w-full rounded-lg px-3 py-2 text-left text-sm transition ${pageId === page.id ? "bg-blue-500/20 text-blue-300" : "text-zinc-300 hover:bg-zinc-700/50"
+                          }`}
                       >
                         <span className="font-semibold block truncate">{page.title}</span>
                       </button>
@@ -332,7 +353,7 @@ export default function Home() {
             {/* Storage / Path Setings */}
             <div className="space-y-4">
               <h2 className="text-xs font-semibold uppercase tracking-wider text-zinc-500">File Storage</h2>
-              
+
               <div>
                 <label className="mb-1 block text-[11px] font-medium text-zinc-400">Excel Template</label>
                 <div className="flex gap-2">
@@ -340,7 +361,7 @@ export default function Home() {
                     readOnly
                     type="text"
                     value={templatePath}
-                    placeholder="/mnt/d/XL/..."
+                    placeholder="Select Excel template file..."
                     className="flex-1 min-w-0 rounded-xl border border-zinc-700 bg-zinc-800/40 px-3 py-2 text-xs text-zinc-300 outline-none"
                   />
                   <button
@@ -359,7 +380,7 @@ export default function Home() {
                     readOnly
                     type="text"
                     value={outputDir}
-                    placeholder="Output path..."
+                    placeholder="Select output location..."
                     className="flex-1 min-w-0 rounded-xl border border-zinc-700 bg-zinc-800/40 px-3 py-2 text-xs text-zinc-300 outline-none"
                   />
                   <button
@@ -370,7 +391,7 @@ export default function Home() {
                   </button>
                 </div>
               </div>
-              
+
               <div>
                 <label className="mb-1 block text-[11px] font-medium text-zinc-400">File Name Format</label>
                 <input
@@ -390,7 +411,7 @@ export default function Home() {
           {/* Signatures */}
           <div className="mt-6 bg-zinc-900/50 p-6 rounded-2xl border border-zinc-800/80 shadow-inner relative overflow-hidden">
             <h2 className="mb-4 text-xs font-semibold uppercase tracking-wider text-zinc-500">Signatures</h2>
-            
+
             <div className="grid grid-cols-2 gap-6">
               <div className="space-y-3">
                 <div>
@@ -398,6 +419,7 @@ export default function Home() {
                   <input
                     type="text"
                     value={submitterName}
+                    placeholder="Your Name"
                     onChange={(e) => { setSubmitterName(e.target.value); localStorage.setItem("timesheet_submitterName", e.target.value); }}
                     className="w-full rounded-xl border border-zinc-700 bg-zinc-800/80 px-3 py-2 text-sm text-zinc-200 outline-none focus:border-blue-500"
                   />
@@ -422,13 +444,13 @@ export default function Home() {
                   <input
                     type="text"
                     value={approverName}
-                    placeholder="Leader Name"
+                    placeholder="Buddy Name"
                     onChange={(e) => { setApproverName(e.target.value); localStorage.setItem("timesheet_approverName", e.target.value); }}
                     className="w-full rounded-xl border border-zinc-700 bg-zinc-800/80 px-3 py-2 text-sm text-zinc-200 outline-none focus:border-blue-500"
                   />
                 </div>
                 <div>
-                   <div className="mb-1.5 flex items-center justify-between">
+                  <div className="mb-1.5 flex items-center justify-between">
                     <label className="text-xs font-medium text-zinc-400">Date</label>
                     <button onClick={() => setApproverDate(getLastDayStr(year, month))} className="text-[10px] text-blue-400 hover:text-blue-300">Set End of Month</button>
                   </div>
@@ -478,9 +500,9 @@ export default function Home() {
 
           {status && (
             <div className={`mt-5 rounded-xl p-4 text-sm font-medium flex items-center gap-3 backdrop-blur-sm shadow-inner
-              ${status.type === "success" ? "bg-emerald-500/10 text-emerald-300 border border-emerald-500/20" : 
-                status.type === "error" ? "bg-rose-500/10 text-rose-300 border border-rose-500/20" : 
-                "bg-blue-500/10 text-blue-300 border border-blue-500/20"}`}>
+              ${status.type === "success" ? "bg-emerald-500/10 text-emerald-300 border border-emerald-500/20" :
+                status.type === "error" ? "bg-rose-500/10 text-rose-300 border border-rose-500/20" :
+                  "bg-blue-500/10 text-blue-300 border border-blue-500/20"}`}>
               <div className="flex-1">{status.message}</div>
             </div>
           )}
@@ -505,7 +527,7 @@ export default function Home() {
               </div>
               <button onClick={() => setShowWelcomeGuide(false)} className="rounded-full bg-zinc-800/50 p-2 text-zinc-500 transition hover:bg-zinc-800 hover:text-white">✕</button>
             </div>
-            
+
             <div className="space-y-6 overflow-y-auto bg-zinc-900/80 p-6 max-h-[60vh]">
               <div className="flex items-start gap-4">
                 <div className="rounded-lg bg-blue-500/20 p-2 text-blue-400">🗓️</div>
@@ -514,26 +536,26 @@ export default function Home() {
                   <p className="mt-1 text-xs leading-relaxed text-zinc-400">Pilih <strong className="text-zinc-300">Bulan</strong> dan <strong className="text-zinc-300">Tahun</strong> untuk timesheet. Ini akan otomatis menentukan jumlah hari dalam dokumen Excel Anda.</p>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-4">
                 <div className="rounded-lg bg-indigo-500/20 p-2 text-indigo-400">🎯</div>
                 <div>
-                  <h4 className="text-sm font-semibold text-zinc-200">2. Notion Target</h4>
-                  <p className="mt-1 text-xs leading-relaxed text-zinc-400">Masukkan <strong className="text-zinc-300">Page ID</strong> dari halaman Notion yang berisi tabel data kerja Anda, atau gunakan tombol <strong className="text-zinc-300">Search</strong> untuk menemukan halaman secara otomatis (jika integrasi sudah disambungkan).</p>
+                  <h4 className="text-sm font-semibold text-zinc-200">2. Hubungkan ke Notion</h4>
+                  <p className="mt-1 text-xs leading-relaxed text-zinc-400">Masukkan <strong>API Key</strong> Notion rahasia Anda ke dalam kolom yang tersedia (klik <em>How to Setup</em> jika Anda belum punya). Selanjutnya, masukkan <strong className="text-zinc-300">Page ID</strong> atau cukup tekan tombol <strong className="text-blue-400">Search</strong> untuk mencari halaman tabel kerja Anda secara otomatis.</p>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-4">
                 <div className="rounded-lg bg-emerald-500/20 p-2 text-emerald-400">📁</div>
                 <div>
                   <h4 className="text-sm font-semibold text-zinc-200">3. File Storage</h4>
                   <p className="mt-1 text-xs leading-relaxed text-zinc-400">Gunakan tombol <strong className="text-zinc-300">Choose...</strong> untuk menavigasi direktori lokal Anda dengan mulus:
-                    <br/>- <strong>Excel Template:</strong> Pilih file Excel kosong / polosan yang ingin diisi.
-                    <br/>- <strong>Output Directory:</strong> Folder tempat hasil generate akan langsung di-save otomatis.
+                    <br />- <strong>Excel Template:</strong> Pilih file Excel kosong / polosan yang ingin diisi.
+                    <br />- <strong>Output Directory:</strong> Folder tempat hasil generate akan langsung di-save otomatis.
                   </p>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-4">
                 <div className="rounded-lg bg-amber-500/20 p-2 text-amber-400">✍️</div>
                 <div>
@@ -541,7 +563,7 @@ export default function Home() {
                   <p className="mt-1 text-xs leading-relaxed text-zinc-400">Ketik nama <strong className="text-zinc-300">Submitter</strong> (Pembuat) & <strong className="text-zinc-300">Approver</strong> (Atasan). Anda bisa menggunakan tombol <strong className="text-blue-400">Set End of Month</strong> untuk otomatis set tanggal. Tersedia juga fitur unggah foto tanda tangan digital untuk dimasukkan langsung ke Excel!</p>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-4">
                 <div className="rounded-lg bg-rose-500/20 p-2 text-rose-400">🚀</div>
                 <div>
@@ -550,7 +572,7 @@ export default function Home() {
                 </div>
               </div>
             </div>
-            
+
             <div className="flex justify-end border-t border-zinc-800/50 bg-zinc-950/80 p-5">
               <button onClick={() => setShowWelcomeGuide(false)} className="rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:scale-105">Start Generating!</button>
             </div>
@@ -569,22 +591,21 @@ export default function Home() {
               </h3>
               <button onClick={() => setShowSetupHelp(false)} className="text-zinc-500 hover:text-white transition">✕</button>
             </div>
-            
+
             <div className="p-6 bg-zinc-900 overflow-y-auto">
               <ol className="list-decimal list-inside space-y-4 text-sm text-zinc-300">
-                <li>Go to <a href="https://www.notion.so/my-integrations" target="_blank" className="font-semibold text-blue-400 hover:underline">Notion Integrations</a> and create a new integration.</li>
-                <li>Copy the <strong className="text-zinc-100">Internal Integration Secret Token</strong>.</li>
-                <li className="leading-relaxed">Open <code className="bg-zinc-800 px-1.5 py-0.5 rounded text-zinc-200 font-mono text-xs border border-zinc-700">.env.local</code> in your project folder and set:<br/>
-                  <code className="block bg-zinc-950 p-3 rounded-lg mt-2 text-xs font-mono text-blue-300 border border-zinc-800 shadow-inner">NOTION_API_KEY=secret_...</code>
-                  <span className="text-[11px] text-zinc-500 mt-2 block italic">* You must restart the Notion Timesheet application after changing this file.</span>
+                <li>Buka halaman <a href="https://www.notion.so/my-integrations" target="_blank" className="font-semibold text-blue-400 hover:underline">Notion Integrations</a> dan buat integrasi baru <em>(New integration)</em>.</li>
+                <li>Salin <em>(Copy)</em> kode <strong className="text-zinc-100">Internal Integration Secret Token</strong> yang muncul.</li>
+                <li className="leading-relaxed">Kembali ke aplikasi ini dan tempelkan <em>(Paste)</em> kode tersebut ke kolom <strong>API Key Override</strong>. <br />
+                  <span className="text-[11px] text-zinc-500 mt-2 block italic">* Jangan khawatir, token ini hanya disimpan di memori/browser lokal Anda secara aman.</span>
                 </li>
-                <li>Open the Notion Page you want to use as the Timesheet data source. (It must have a table inside).</li>
-                <li>Click the <code className="bg-zinc-800 px-1.5 py-0.5 rounded font-mono text-xs border border-zinc-700">...</code> menu on the top-right corner of the Notion page.</li>
-                <li>Select <strong className="text-zinc-100">Add connections</strong> (or Connect to) and search for your integration name to grant it access.</li>
-                <li>You are now ready! You can click <strong>Search</strong> to find the page, or directly paste the Page ID here.</li>
+                <li>Buka Halaman/Database Notion tempat Anda biasa menulis jurnal/timesheet harian Anda.</li>
+                <li>Klik tombol <code className="bg-zinc-800 px-1.5 py-0.5 rounded font-mono text-xs border border-zinc-700">...</code> di pojok kanan atas halaman Notion tersebut.</li>
+                <li>Pilih <strong className="text-zinc-100">Add connections</strong> (Hubungkan ke), lalu ketik dan pilih nama integrasi yang baru saja Anda buat.</li>
+                <li>Selesai! Sekarang tinggal klik tombol <strong>Search</strong> untuk memuat data Anda. Sangat mudah, kan?</li>
               </ol>
             </div>
-            
+
             <div className="bg-zinc-950 p-4 border-t border-zinc-800 flex justify-end">
               <button onClick={() => setShowSetupHelp(false)} className="rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white shadow-md hover:bg-blue-500 transition">Understood</button>
             </div>
@@ -605,7 +626,7 @@ export default function Home() {
               </h3>
               <button onClick={() => setFsOpen(false)} className="text-zinc-500 hover:text-white transition">✕</button>
             </div>
-            
+
             <div className="bg-zinc-900 px-4 py-3 flex gap-2 border-b border-zinc-800 items-center">
               <span className="text-zinc-500 text-xs font-mono shrink-0">PATH</span>
               <div className="bg-zinc-950 rounded bg-opacity-50 px-3 py-1.5 flex-1 min-w-0 text-xs text-zinc-300 font-mono truncate border border-zinc-800/50">
@@ -620,11 +641,10 @@ export default function Home() {
                 <ul className="space-y-1">
                   {fsEntries.map((entry, idx) => (
                     <li key={idx}>
-                      <button 
+                      <button
                         onClick={() => entry.isDirectory ? loadDir(entry.path) : (fsMode === "file" && confirmFileBrowserSelection(entry.path))}
-                        className={`w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl transition ${
-                          !entry.isDirectory && fsMode === "directory" ? "opacity-40 cursor-not-allowed" : "hover:bg-zinc-800 cursor-pointer"
-                        }`}
+                        className={`w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl transition ${!entry.isDirectory && fsMode === "directory" ? "opacity-40 cursor-not-allowed" : "hover:bg-zinc-800 cursor-pointer"
+                          }`}
                         disabled={!entry.isDirectory && fsMode === "directory"}
                       >
                         <span className="text-lg leading-none">{getIconForFile(entry.name, entry.isDirectory)}</span>
@@ -635,12 +655,12 @@ export default function Home() {
                 </ul>
               )}
             </div>
-            
+
             <div className="bg-zinc-950 p-4 border-t border-zinc-800 flex justify-end gap-3">
               <button onClick={() => setFsOpen(false)} className="rounded-lg px-4 py-2 text-sm font-medium text-zinc-400 hover:text-white hover:bg-zinc-800 transition">Cancel</button>
               {fsMode === "directory" && (
-                <button 
-                  onClick={() => confirmFileBrowserSelection(fsPath)} 
+                <button
+                  onClick={() => confirmFileBrowserSelection(fsPath)}
                   className="rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white shadow-md hover:bg-blue-500 transition"
                 >
                   Select Current Folder

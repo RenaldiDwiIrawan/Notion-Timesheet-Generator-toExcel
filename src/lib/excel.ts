@@ -196,7 +196,7 @@ export async function generateTimesheet(
 
   // --- 4.5. Fill Signature block in "Timesheet" sheet ---
   // Submitter Name
-  const subNameStr = signatures?.submitterName || "Renaldi Dwi Irawan";
+  const subNameStr = signatures?.submitterName || "";
   const subDateStr = signatures?.submitterDate || "";
 
   // Approver Name

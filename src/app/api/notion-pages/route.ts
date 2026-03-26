@@ -1,9 +1,10 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { searchTimesheetPages } from "@/lib/notion";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const pages = await searchTimesheetPages();
+    const apiKey = request.headers.get("x-notion-api-key") || undefined;
+    const pages = await searchTimesheetPages(apiKey);
     return NextResponse.json({ pages });
   } catch (error) {
     const message =
