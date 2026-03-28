@@ -8,8 +8,8 @@ interface ConfigurationSectionProps {
   handleMonthChange: (m: number) => void;
   year: number;
   handleYearChange: (y: number) => void;
-  dataSource: string;
-  setDataSource: (s: string) => void;
+  dataSource: "notion" | "notepad";
+  setDataSource: (s: "notion" | "notepad") => void;
   setIsAutoPopup: (b: boolean) => void;
   setShowSetupHelp: (b: boolean) => void;
   setShowNotepadHelp: (b: boolean) => void;
@@ -27,7 +27,7 @@ interface ConfigurationSectionProps {
   csvFileName: string;
   setCsvFileName: (s: string) => void;
   handleCsvUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  csvInputRef: React.RefObject<HTMLInputElement>;
+  csvInputRef: React.RefObject<HTMLInputElement | null>;
 }
 
 export default function ConfigurationSection({

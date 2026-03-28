@@ -13,7 +13,7 @@ interface SignatureSectionProps {
   setApproverDate: (val: string) => void;
   submitterSignature: string | null;
   setSubmitterSignature: (val: string | null) => void;
-  signatureRef: React.RefObject<HTMLInputElement>;
+  signatureRef: React.RefObject<HTMLInputElement | null>;
   handleSignatureUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   year: number;
   month: number;

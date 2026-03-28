@@ -10,16 +10,6 @@ import SignatureSection from "../components/sections/SignatureSection";
 import ConfigurationSection from "../components/sections/ConfigurationSection";
 import StorageSection from "../components/sections/StorageSection";
 
-interface NotionPage {
-  id: string;
-  title: string;
-}
-
-interface FSEntry {
-  name: string;
-  path: string;
-  isDirectory: boolean;
-}
 
 import { translations } from "../utils/translations";
 import { NotionPage, FSEntry } from "../types";
