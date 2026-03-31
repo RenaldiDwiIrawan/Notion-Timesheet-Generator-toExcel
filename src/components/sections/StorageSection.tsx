@@ -30,7 +30,7 @@ export default function StorageSection({
   return (
     <div className="space-y-6">
       <div
-        className={`group rounded-3xl border p-7 transition-all duration-500 ${isDark ? "bg-zinc-900/40 border-zinc-800/80 hover:border-blue-500/30 shadow-[0_8px_30px_rgb(0,0,0,0.12)]" : "bg-white border-zinc-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]"}`}
+        className={`group rounded-3xl border p-5 sm:p-7 transition-all duration-500 ${isDark ? "bg-zinc-900/40 border-zinc-800/80 hover:border-blue-500/30 shadow-[0_8px_30px_rgb(0,0,0,0.12)]" : "bg-white border-zinc-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]"}`}
       >
         <div className="flex items-center justify-between mb-6">
           <h2 className="flex items-center gap-2.5 text-xs font-bold uppercase tracking-[0.15em] text-blue-500">

@@ -18,9 +18,9 @@ export default function Header({
   setShowWelcomeGuide,
 }: HeaderProps) {
   return (
-    <div className="mb-8 flex items-start justify-between">
-      <div className="flex items-center gap-5">
-        <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-white/5 shadow-inner border border-white/10 backdrop-blur-md overflow-hidden">
+    <div className="mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+      <div className="flex items-center gap-4 sm:gap-5">
+        <div className="flex h-16 w-16 sm:h-20 sm:w-20 shrink-0 items-center justify-center rounded-2xl bg-white/5 shadow-inner border border-white/10 backdrop-blur-md overflow-hidden">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/logo.png"
@@ -29,17 +29,17 @@ export default function Header({
           />
         </div>
         <div>
-          <h1 className="mb-1 text-3xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-500">
+          <h1 className="mb-1 text-2xl sm:text-3xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-500">
             {t.title}
           </h1>
           <p
-            className={`text-xs font-medium italic ${isDark ? "text-zinc-500" : "text-zinc-400"}`}
+            className={`text-[10px] sm:text-xs font-medium italic ${isDark ? "text-zinc-500" : "text-zinc-400"}`}
           >
             {t.desc}
           </p>
         </div>
       </div>
-      <div className="flex items-center gap-3 pt-2">
+      <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto justify-end">
         <button
           onClick={() => setShowWelcomeGuide(true)}
           className={`flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-bold transition-all ${isDark ? "border-zinc-700 bg-zinc-800 text-zinc-300 hover:bg-zinc-700" : "border-zinc-200 bg-white text-zinc-600 hover:bg-zinc-50 shadow-sm"}`}

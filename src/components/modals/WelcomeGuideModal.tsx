@@ -24,8 +24,8 @@ export default function WelcomeGuideModal({
         <div
           className={`flex items-start justify-between border-b p-6 ${isDark ? "border-zinc-800/50 bg-zinc-950" : "border-zinc-100 bg-zinc-50"}`}
         >
-          <div className="flex items-center gap-5">
-            <div className="h-16 w-16 shrink-0 rounded-2xl bg-white/5 border border-white/10 overflow-hidden flex items-center justify-center">
+          <div className="flex items-center gap-3 sm:gap-5">
+            <div className="h-12 w-12 sm:h-16 sm:w-16 shrink-0 rounded-2xl bg-white/5 border border-white/10 overflow-hidden flex items-center justify-center">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/logo.png"
@@ -34,10 +34,10 @@ export default function WelcomeGuideModal({
               />
             </div>
             <div>
-              <h3 className="bg-gradient-to-r from-blue-400 to-indigo-500 bg-clip-text text-xl font-bold text-transparent">
+              <h3 className="bg-gradient-to-r from-blue-400 to-indigo-500 bg-clip-text text-lg sm:text-xl font-bold text-transparent">
                 {t.wgTitle}
               </h3>
-              <p className="mt-1 text-xs text-zinc-500">{t.wgSubtitle}</p>
+              <p className="mt-0.5 sm:mt-1 text-[10px] sm:text-xs text-zinc-500">{t.wgSubtitle}</p>
             </div>
           </div>
           <button

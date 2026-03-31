@@ -436,7 +436,7 @@ export default function Home() {
       className={`flex min-h-screen items-center justify-center transition-colors duration-500 p-4 font-sans ${isDark ? "bg-zinc-950 text-zinc-100" : "bg-slate-50 text-zinc-900"}`}
     >
       <main
-        className={`w-full max-w-5xl rounded-3xl border p-8 shadow-2xl transition-all relative overflow-hidden ${isDark ? "bg-zinc-900/40 border-zinc-800 backdrop-blur-xl" : "bg-white border-zinc-200"}`}
+        className={`w-full max-w-5xl rounded-3xl border p-5 sm:p-8 shadow-2xl transition-all relative overflow-hidden ${isDark ? "bg-zinc-900/40 border-zinc-800 backdrop-blur-xl" : "bg-white border-zinc-200"}`}
       >
         <div className="pointer-events-none absolute -top-32 -left-32 h-64 w-64 rounded-full bg-blue-600/20 blur-3xl"></div>
         <div className="pointer-events-none absolute -bottom-32 -right-32 h-64 w-64 rounded-full bg-purple-600/20 blur-3xl"></div>
