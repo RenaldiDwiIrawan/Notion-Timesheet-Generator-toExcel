@@ -441,13 +441,14 @@ export default function ConfigurationSection({
                       "jumat",
                       "sabtu",
                     ];
-                    let content = "Timesheet\n";
+                    let content = `Timesheet Period: ${t.months[month - 1]} ${year}\n\n`;
                     const daysInMonth = new Date(year, month, 0).getDate();
-                    for (let d = 1; d <= 7 && d <= daysInMonth; d++) {
+                    for (let d = 1; d <= daysInMonth; d++) {
                       const date = new Date(year, month - 1, d);
                       const dayOfWeek = date.getDay();
+                      // Only include weekdays (Monday-Friday) in the notepad template
                       if (dayOfWeek >= 1 && dayOfWeek <= 5) {
-                        content += `${d}/${daysIndo[dayOfWeek]}\t\n1. \n2. \n3. \n`;
+                        content += `${d}/${daysIndo[dayOfWeek]}\t\n1. \n2. \n3. \n\n`;
                       }
                     }
                     const blob = new Blob([content], { type: "text/plain" });

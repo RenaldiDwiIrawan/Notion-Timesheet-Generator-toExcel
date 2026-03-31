@@ -3,33 +3,33 @@ import path from "path";
 import { TimesheetEntry } from "./notion";
 
 const MONTH_NAMES_ID: Record<number, string> = {
-  1: "January",
-  2: "February",
-  3: "March",
+  1: "Januari",
+  2: "Februari",
+  3: "Maret",
   4: "April",
-  5: "May",
-  6: "June",
-  7: "July",
-  8: "August",
+  5: "Mei",
+  6: "Juni",
+  7: "Juli",
+  8: "Agustus",
   9: "September",
-  10: "October",
+  10: "Oktober",
   11: "November",
-  12: "December",
+  12: "Desember",
 };
 
 const MONTH_NAMES_ID_UPPER: Record<number, string> = {
-  1: "JANUARY",
-  2: "FEBUARY",
-  3: "MARCH",
+  1: "JANUARI",
+  2: "FEBRUARI",
+  3: "MARET",
   4: "APRIL",
-  5: "MAY",
-  6: "JUNE",
-  7: "JULY",
-  8: "AUGUST",
+  5: "MEI",
+  6: "JUNI",
+  7: "JULI",
+  8: "AGUSTUS",
   9: "SEPTEMBER",
-  10: "OCTOBER",
+  10: "OKTOBER",
   11: "NOVEMBER",
-  12: "DECEMBER",
+  12: "DESEMBER",
 };
 
 // Approximate character width in points for Calibri 12
@@ -137,8 +137,8 @@ export async function generateTimesheet(
     }
 
     if (dayOfMonth <= daysInMonth) {
-      const date = new Date(year, month - 1, dayOfMonth);
-      const dayOfWeek = date.getDay(); // 0=Sunday, 6=Saturday
+      const date = new Date(Date.UTC(year, month - 1, dayOfMonth, 12, 0, 0));
+      const dayOfWeek = date.getUTCDay(); // 0=Sunday, 6=Saturday
       const isWeekend = dayOfWeek === 0 || dayOfWeek === 6; // Saturday & Sunday
 
       // Apply fill to table columns (A-J) using style clone to avoid ExcelJS shared style bugs
@@ -153,7 +153,7 @@ export async function generateTimesheet(
         };
       }
 
-      // Only fill tasks on weekdays (Monday-Friday)
+      // Only fill tasks on weekdays (Monday-Friday) - weekends are always empty and colored yellow
       const taskText = isWeekend ? "" : (taskMap.get(dayOfMonth) || "");
       const cellG = row.getCell(7); // Column G
 
