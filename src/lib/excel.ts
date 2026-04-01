@@ -32,6 +32,16 @@ const MONTH_NAMES_ID_UPPER: Record<number, string> = {
   12: "DESEMBER",
 };
 
+const DAYS_ID: Record<number, string> = {
+  0: "Minggu",
+  1: "Senin",
+  2: "Selasa",
+  3: "Rabu",
+  4: "Kamis",
+  5: "Jumat",
+  6: "Sabtu",
+};
+
 // Approximate character width in points for Calibri 12
 const CHAR_HEIGHT_PT = 15;
 
@@ -140,7 +150,7 @@ export async function generateTimesheet(
           currentCell.value = new Date(Date.UTC(year, month - 1, dayOfMonth, 12, 0, 0));
         } else if (col === 1) {
           // Column A is the day name text
-          currentCell.value = { formula: `TEXT(B${rowNum},"dddd")` } as any;
+          currentCell.value = DAYS_ID[new Date(Date.UTC(year, month - 1, dayOfMonth, 12, 0, 0)).getUTCDay()];
         } else {
           // For static values like Time In (C), Time Break (D), Time Out (E), Location, etc.
           currentCell.value = prevCell.value;
@@ -161,7 +171,7 @@ export async function generateTimesheet(
       const cellB = row.getCell(2);
       cellB.value = date;
       cellB.numFmt = "dd/mm/yyyy"; // Ensure consistent date format
-      cellA.value = { formula: `TEXT(B${rowNum},"dddd")` } as any;
+      cellA.value = DAYS_ID[dayOfWeek];
 
       // Apply consistent styling to Day and Date columns
       [cellA, cellB].forEach(cell => {
