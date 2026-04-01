@@ -82,6 +82,20 @@ export default function Home() {
   const [isAutoPopup, setIsAutoPopup] = useState(false);
   const signatureRef = useRef<HTMLInputElement>(null);
 
+  // Refs for focusing on validation failure
+  const submitterNameRef = useRef<HTMLInputElement>(null);
+  const approverNameRef = useRef<HTMLInputElement>(null);
+  const pageIdRef = useRef<HTMLInputElement>(null);
+  const outputDirBtnRef = useRef<HTMLButtonElement>(null);
+  const templateBtnRef = useRef<HTMLButtonElement>(null);
+
+  const [shakingFields, setShakingFields] = useState<string[]>([]);
+
+  const triggerShake = (fieldLabels: string[]) => {
+    setShakingFields(fieldLabels);
+    setTimeout(() => setShakingFields([]), 1000);
+  };
+
   const [useCustomTemplate, setUseCustomTemplate] = useState(false);
 
   // Custom status
@@ -300,14 +314,46 @@ export default function Home() {
   };
 
   const generate = async () => {
-    if (dataSource === "notion" && !pageId) {
-      setStatus({ type: "error", message: t.selectError });
+    const missingFields: { label: string; ref: React.RefObject<any> }[] = [];
+    if (dataSource === "notion" && !pageId)
+      missingFields.push({ label: t.notionTarget, ref: pageIdRef });
+    if (dataSource === "notepad" && !csvData)
+      missingFields.push({ label: t.notepadTarget, ref: csvInputRef });
+    if (!submitterName.trim())
+      missingFields.push({ label: t.fieldSubmitterName, ref: submitterNameRef });
+    if (!approverName.trim())
+      missingFields.push({ label: t.fieldApproverName, ref: approverNameRef });
+    if (!outputDir)
+      missingFields.push({ label: t.fieldOutputDir, ref: outputDirBtnRef });
+    if (useCustomTemplate && !templatePath)
+      missingFields.push({ label: t.fieldTemplatePath, ref: templateBtnRef });
+
+    if (missingFields.length > 0) {
+      const fieldList = missingFields.map((f) => `- ${f.label}`).join("\n");
+      setStatus({
+        type: "error",
+        message: (t as any).validationError.replace("{fields}", fieldList),
+      });
+
+      // Trigger shake animation
+      triggerShake(missingFields.map((f) => f.label));
+
+      // Focus the first missing field
+      if (missingFields[0].ref.current) {
+        if (missingFields[0].ref === csvInputRef) {
+          // Special case for hidden file input: maybe trigger click or focus the label
+          missingFields[0].ref.current.focus();
+        } else {
+          missingFields[0].ref.current.focus();
+          missingFields[0].ref.current.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+          });
+        }
+      }
       return;
     }
-    if (dataSource === "notepad" && !csvData) {
-      setStatus({ type: "error", message: t.selectErrorNotepad });
-      return;
-    }
+
     setLoading(true);
     setStatus({
       type: "info",
@@ -471,6 +517,7 @@ export default function Home() {
               setShowApiKey={setShowApiKey}
               pageId={pageId}
               setPageId={setPageId}
+              pageIdRef={pageIdRef}
               searchPages={searchPages}
               searching={searching}
               pages={pages}
@@ -480,6 +527,7 @@ export default function Home() {
               setCsvFileName={setCsvFileName}
               handleCsvUpload={handleCsvUpload}
               csvInputRef={csvInputRef}
+              shakingFields={shakingFields}
             />
 
             {/* Right Column: Storage */}
@@ -490,11 +538,14 @@ export default function Home() {
               setUseCustomTemplate={setUseCustomTemplate}
               templatePath={templatePath}
               setTemplatePath={setTemplatePath}
+              templateBtnRef={templateBtnRef}
               outputDir={outputDir}
               setOutputDir={setOutputDir}
+              outputDirBtnRef={outputDirBtnRef}
               outputFilenameFormat={outputFilenameFormat}
               setOutputFilenameFormat={setOutputFilenameFormat}
               openFileBrowser={openFileBrowser}
+              shakingFields={shakingFields}
             />
           </div>
 
@@ -503,10 +554,12 @@ export default function Home() {
             isDark={isDark}
             submitterName={submitterName}
             setSubmitterName={setSubmitterName}
+            submitterNameRef={submitterNameRef}
             submitterDate={submitterDate}
             setSubmitterDate={setSubmitterDate}
             approverName={approverName}
             setApproverName={setApproverName}
+            approverNameRef={approverNameRef}
             approverDate={approverDate}
             setApproverDate={setApproverDate}
             submitterSignature={submitterSignature}
@@ -517,6 +570,7 @@ export default function Home() {
             month={month}
             getTodayStr={getTodayStr}
             getLastDayStr={getLastDayStr}
+            shakingFields={shakingFields}
           />
 
           <div className="mt-8 flex gap-4">
@@ -542,9 +596,7 @@ export default function Home() {
             </button>
             <button
               onClick={generate}
-              disabled={
-                loading || (dataSource === "notion" ? !pageId : !csvData)
-              }
+              disabled={loading}
               className={`flex-1 block rounded-2xl px-4 py-4 text-sm font-bold tracking-wide text-white shadow-lg transition-all hover:scale-[1.01] disabled:pointer-events-none disabled:opacity-50 ${isDark ? "bg-gradient-to-r from-blue-600 to-indigo-600 shadow-blue-500/20 hover:shadow-blue-500/30" : "bg-gradient-to-r from-blue-500 to-indigo-500 shadow-blue-400/30 hover:shadow-blue-400/50"}`}
             >
               {loading ? (

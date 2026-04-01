@@ -7,11 +7,14 @@ interface StorageSectionProps {
   setUseCustomTemplate: (val: boolean) => void;
   templatePath: string;
   setTemplatePath: (val: string) => void;
+  templateBtnRef: React.RefObject<HTMLButtonElement | null>;
   outputDir: string;
   setOutputDir: (val: string) => void;
+  outputDirBtnRef: React.RefObject<HTMLButtonElement | null>;
   outputFilenameFormat: string;
   setOutputFilenameFormat: (val: string) => void;
   openFileBrowser: (mode: "file" | "directory") => void;
+  shakingFields: string[];
 }
 
 export default function StorageSection({
@@ -21,11 +24,14 @@ export default function StorageSection({
   setUseCustomTemplate,
   templatePath,
   setTemplatePath,
+  templateBtnRef,
   outputDir,
   setOutputDir,
+  outputDirBtnRef,
   outputFilenameFormat,
   setOutputFilenameFormat,
   openFileBrowser,
+  shakingFields,
 }: StorageSectionProps) {
   return (
     <div className="space-y-6">
@@ -97,7 +103,8 @@ export default function StorageSection({
                 </div>
                 <button
                   onClick={() => openFileBrowser("file")}
-                  className="shrink-0 px-4 py-2.5 rounded-xl bg-blue-600 text-white text-xs font-bold shadow-lg shadow-blue-500/20 active:scale-95 transition-all"
+                  ref={templateBtnRef as any}
+                  className={`shrink-0 px-4 py-2.5 rounded-xl bg-blue-600 text-white text-xs font-bold shadow-lg shadow-blue-500/20 active:scale-95 transition-all ${shakingFields.includes(t.fieldTemplatePath) ? "animate-shake ring-4 ring-red-500 bg-red-600" : ""}`}
                 >
                   {t.choose}
                 </button>
@@ -113,13 +120,14 @@ export default function StorageSection({
             </label>
             <div className="flex gap-2">
               <div
-                className={`flex-1 flex items-center px-4 rounded-xl border text-xs truncate font-medium ${isDark ? "border-zinc-700 bg-zinc-800/40 text-zinc-300" : "border-zinc-200 bg-zinc-50 text-zinc-600"}`}
+                className={`flex-1 flex items-center px-4 rounded-xl border text-xs truncate font-medium ${isDark ? "border-zinc-700 bg-zinc-800/40 text-zinc-300" : "border-zinc-200 bg-zinc-50 text-zinc-600"} ${shakingFields.includes(t.fieldOutputDir) ? "animate-shake ring-2 ring-red-500 border-red-500" : ""}`}
               >
                 {outputDir || t.selectOutput}
               </div>
               <button
                 onClick={() => openFileBrowser("directory")}
-                className="shrink-0 px-4 py-2.5 rounded-xl bg-blue-600 text-white text-xs font-bold shadow-lg shadow-blue-500/20 active:scale-95 transition-all"
+                ref={outputDirBtnRef as any}
+                className={`shrink-0 px-4 py-2.5 rounded-xl bg-blue-600 text-white text-xs font-bold shadow-lg shadow-blue-500/20 active:scale-95 transition-all ${shakingFields.includes(t.fieldOutputDir) ? "animate-shake ring-4 ring-red-500 bg-red-600" : ""}`}
               >
                 {t.choose}
               </button>

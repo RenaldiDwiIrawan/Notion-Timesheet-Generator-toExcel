@@ -19,6 +19,7 @@ interface ConfigurationSectionProps {
   setShowApiKey: (b: boolean) => void;
   pageId: string;
   setPageId: (s: string) => void;
+  pageIdRef: React.RefObject<HTMLInputElement | null>;
   searchPages: () => void;
   searching: boolean;
   pages: NotionPage[];
@@ -28,6 +29,7 @@ interface ConfigurationSectionProps {
   setCsvFileName: (s: string) => void;
   handleCsvUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   csvInputRef: React.RefObject<HTMLInputElement | null>;
+  shakingFields: string[];
 }
 
 export default function ConfigurationSection({
@@ -48,6 +50,7 @@ export default function ConfigurationSection({
   setShowApiKey,
   pageId,
   setPageId,
+  pageIdRef,
   searchPages,
   searching,
   pages,
@@ -57,6 +60,7 @@ export default function ConfigurationSection({
   setCsvFileName,
   handleCsvUpload,
   csvInputRef,
+  shakingFields,
 }: ConfigurationSectionProps) {
   return (
     <div className="space-y-6">
@@ -299,10 +303,11 @@ export default function ConfigurationSection({
                 <div className="relative flex-1 group">
                   <input
                     type="text"
+                    ref={pageIdRef as any}
                     value={pageId}
                     onChange={(e) => setPageId(e.target.value)}
                     placeholder={t.pageIdStr}
-                    className={`w-full rounded-xl border px-4 py-3 text-sm outline-none transition-all placeholder:text-zinc-500 font-medium ${isDark ? "border-zinc-700 bg-zinc-800/50 text-zinc-200 focus:border-blue-500 focus:bg-zinc-800" : "border-zinc-200 bg-white text-zinc-900 focus:border-blue-400 focus:ring-4 focus:ring-blue-500/5 shadow-sm"}`}
+                    className={`w-full rounded-xl border px-4 py-3 text-sm outline-none transition-all placeholder:text-zinc-500 font-medium ${isDark ? "border-zinc-700 bg-zinc-800/50 text-zinc-200 focus:border-blue-500 focus:bg-zinc-800" : "border-zinc-200 bg-white text-zinc-900 focus:border-blue-400 focus:ring-4 focus:ring-blue-500/5 shadow-sm"} ${shakingFields.includes(t.notionTarget) ? "animate-shake ring-2 ring-red-500 border-red-500" : ""}`}
                   />
                 </div>
                 <button
@@ -492,7 +497,7 @@ export default function ConfigurationSection({
                     {csvFileName || t.uploadNotepadPlaceholder}
                   </div>
                   <label
-                    className={`shrink-0 cursor-pointer whitespace-nowrap rounded-xl px-6 py-3 text-xs font-bold text-white shadow-lg transition-all active:scale-95 ${isDark ? "bg-emerald-600 hover:bg-emerald-500" : "bg-emerald-500 hover:bg-emerald-600"}`}
+                    className={`shrink-0 cursor-pointer whitespace-nowrap rounded-xl px-6 py-3 text-xs font-bold text-white shadow-lg transition-all active:scale-95 ${isDark ? "bg-emerald-600 hover:bg-emerald-500" : "bg-emerald-500 hover:bg-emerald-600"} ${shakingFields.includes(t.notepadTarget) ? "animate-shake ring-4 ring-red-500 bg-red-600" : ""}`}
                   >
                     <div className="flex items-center gap-2">
                       <svg

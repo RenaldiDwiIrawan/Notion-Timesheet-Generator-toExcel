@@ -50,6 +50,11 @@ export const translations = {
     processingMsg: "Processing Notepad & generating...",
     genFailed: "Generation failed.",
     genSuccess: "Generated!",
+    validationError: "Please fill in all required fields:\n{fields}",
+    fieldSubmitterName: "Your Name",
+    fieldApproverName: "Buddy/Approver Name",
+    fieldOutputDir: "Output Directory",
+    fieldTemplatePath: "Custom Excel Template",
 
     // Welcome Guide
     wgTitle: "Guide",
@@ -178,6 +183,11 @@ export const translations = {
     processingMsg: "Memproses Notepad & membuat timesheet...",
     genFailed: "Gagal membuat timesheet.",
     genSuccess: "Berhasil dibuat!",
+    validationError: "Silakan isi semua kolom yang wajib diisi:\n{fields}",
+    fieldSubmitterName: "Nama Anda",
+    fieldApproverName: "Nama Buddy/Atasan",
+    fieldOutputDir: "Direktori Output",
+    fieldTemplatePath: "Template Excel Custom",
 
     // How to Use Notepad
     hnTitle: "Cara Pakai Notepad",

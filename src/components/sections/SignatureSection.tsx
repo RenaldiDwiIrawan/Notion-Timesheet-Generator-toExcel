@@ -5,10 +5,12 @@ interface SignatureSectionProps {
   isDark: boolean;
   submitterName: string;
   setSubmitterName: (val: string) => void;
+  submitterNameRef: React.RefObject<HTMLInputElement | null>;
   submitterDate: string;
   setSubmitterDate: (val: string) => void;
   approverName: string;
   setApproverName: (val: string) => void;
+  approverNameRef: React.RefObject<HTMLInputElement | null>;
   approverDate: string;
   setApproverDate: (val: string) => void;
   submitterSignature: string | null;
@@ -19,6 +21,7 @@ interface SignatureSectionProps {
   month: number;
   getTodayStr: () => string;
   getLastDayStr: (y: number, m: number) => string;
+  shakingFields: string[];
 }
 
 export default function SignatureSection({
@@ -26,10 +29,12 @@ export default function SignatureSection({
   isDark,
   submitterName,
   setSubmitterName,
+  submitterNameRef,
   submitterDate,
   setSubmitterDate,
   approverName,
   setApproverName,
+  approverNameRef,
   approverDate,
   setApproverDate,
   submitterSignature,
@@ -40,6 +45,7 @@ export default function SignatureSection({
   month,
   getTodayStr,
   getLastDayStr,
+  shakingFields,
 }: SignatureSectionProps) {
   return (
     <div className="mt-6">
@@ -81,13 +87,14 @@ export default function SignatureSection({
             </label>
             <input
               type="text"
+              ref={submitterNameRef as any}
               value={submitterName}
               placeholder={t.subNamePlaceholder}
               onChange={(e) => {
                 setSubmitterName(e.target.value);
                 localStorage.setItem("timesheet_submitterName", e.target.value);
               }}
-              className={`w-full rounded-xl border px-4 py-3 text-sm outline-none transition-all placeholder:text-zinc-500 font-medium ${isDark ? "border-zinc-700 bg-zinc-800/50 text-zinc-200 focus:border-blue-500" : "border-zinc-200 bg-white text-zinc-900 focus:border-blue-400 shadow-sm"}`}
+              className={`w-full rounded-xl border px-4 py-3 text-sm outline-none transition-all placeholder:text-zinc-500 font-medium ${isDark ? "border-zinc-700 bg-zinc-800/50 text-zinc-200 focus:border-blue-500" : "border-zinc-200 bg-white text-zinc-900 focus:border-blue-400 shadow-sm"} ${shakingFields.includes(t.fieldSubmitterName) ? "animate-shake ring-2 ring-red-500 border-red-500" : ""}`}
             />
             <div className="flex items-center justify-between pt-1">
               <span
@@ -125,13 +132,14 @@ export default function SignatureSection({
             </label>
             <input
               type="text"
+              ref={approverNameRef as any}
               value={approverName}
               placeholder={t.appNamePlaceholder}
               onChange={(e) => {
                 setApproverName(e.target.value);
                 localStorage.setItem("timesheet_approverName", e.target.value);
               }}
-              className={`w-full rounded-xl border px-4 py-3 text-sm outline-none transition-all placeholder:text-zinc-500 font-medium ${isDark ? "border-zinc-700 bg-zinc-800/50 text-zinc-200 focus:border-blue-500" : "border-zinc-200 bg-white text-zinc-900 focus:border-blue-400 shadow-sm"}`}
+              className={`w-full rounded-xl border px-4 py-3 text-sm outline-none transition-all placeholder:text-zinc-500 font-medium ${isDark ? "border-zinc-700 bg-zinc-800/50 text-zinc-200 focus:border-blue-500" : "border-zinc-200 bg-white text-zinc-900 focus:border-blue-400 shadow-sm"} ${shakingFields.includes(t.fieldApproverName) ? "animate-shake ring-2 ring-red-500 border-red-500" : ""}`}
             />
             <div className="flex items-center justify-between pt-1">
               <span
