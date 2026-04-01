@@ -53,13 +53,13 @@ export async function generateTimesheet(
     approverName: string;
     approverDate: string;
     templatePath?: string;
-    templateBuffer?: Buffer;
+    templateBuffer?: any;
   }
-): Promise<Buffer> {
+): Promise<any> {
   const wb = new ExcelJS.Workbook();
 
   if (signatures?.templateBuffer) {
-    await wb.xlsx.load(signatures.templateBuffer);
+    await wb.xlsx.load(signatures.templateBuffer as any);
   } else {
     const templatePath =
       signatures?.templatePath ||
@@ -122,7 +122,7 @@ export async function generateTimesheet(
           // A simple string replace to increment row numbers in the formula
           // e.g. E34-C34 -> E35-C35
           const newFormula = prevCell.formula.replace(new RegExp(`(\\w+)${rowNum - 1}`, 'g'), `$1${rowNum}`);
-          currentCell.value = { formula: newFormula };
+          currentCell.value = { formula: newFormula } as any;
         } else if (col === 2) {
           // Column B is the date, we can explicitly set it just to be safe if there's no formula
           // Or we can let Excel calculate it if the formula copies over.
@@ -130,7 +130,7 @@ export async function generateTimesheet(
           currentCell.value = new Date(Date.UTC(year, month - 1, dayOfMonth, 12, 0, 0));
         } else if (col === 1) {
           // Column A is the day name text
-          currentCell.value = { formula: `TEXT(B${rowNum},"dddd")` };
+          currentCell.value = { formula: `TEXT(B${rowNum},"dddd")` } as any;
         } else {
           // For static values like Time In (C), Time Break (D), Time Out (E), Location, etc.
           currentCell.value = prevCell.value;
@@ -152,9 +152,9 @@ export async function generateTimesheet(
         const existingStyle = { ...cell.style };
         cell.style = {
           ...existingStyle,
-          fill: isWeekend
+          fill: (isWeekend
             ? { type: "pattern" as const, pattern: "solid" as const, fgColor: { argb: "FFFFFF00" } }
-            : { type: "pattern" as const, pattern: "none" as const },
+            : { type: "pattern" as const, pattern: "none" as const }) as any,
         };
       }
 
@@ -192,7 +192,7 @@ export async function generateTimesheet(
         const existingStyle = { ...cell.style };
         cell.style = {
           ...existingStyle,
-          fill: { type: "pattern" as const, pattern: "none" as const },
+          fill: { type: "pattern" as const, pattern: "none" as const } as any,
           border: {} // Removes the grid lines
         };
       }
@@ -335,7 +335,7 @@ export function getOutputFilename(year: number, month: number, format?: string):
  * Save the generated timesheet to the output directory
  */
 export async function saveTimesheet(
-  buffer: Buffer,
+  buffer: any,
   year: number,
   month: number,
   outputDirOverride?: string,
