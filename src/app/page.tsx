@@ -82,7 +82,6 @@ export default function Home() {
   const pageIdRef = useRef<HTMLInputElement>(null);
   const templateInputRef = useRef<HTMLInputElement>(null);
   const templateBtnRef = useRef<HTMLButtonElement>(null);
-  const outputDirBtnRef = useRef<HTMLButtonElement>(null);
 
   const [shakingFields, setShakingFields] = useState<string[]>([]);
 
@@ -96,7 +95,6 @@ export default function Home() {
     null,
   );
   const [customTemplateName, setCustomTemplateName] = useState("");
-  const [directoryHandle, setDirectoryHandle] = useState<any>(null);
 
   const handleTemplateUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -107,22 +105,6 @@ export default function Home() {
         setCustomTemplateName(file.name);
       };
       reader.readAsDataURL(file);
-    }
-  };
-
-  const chooseDirectory = async () => {
-    try {
-      const handle = await (window as any).showDirectoryPicker();
-      setDirectoryHandle(handle);
-      setStatus({ type: "success", message: "Folder selected successfully!" });
-      setTimeout(() => setStatus(null), 3000);
-    } catch (err: any) {
-      if (err.name === "AbortError") return;
-      console.error("Directory picker error:", err);
-      setStatus({
-        type: "error",
-        message: (t as any).folderRestricted,
-      });
     }
   };
 
@@ -380,43 +362,17 @@ export default function Home() {
 
       const blob = await res.blob();
 
-      // If user has picked a directory, save it there directly
-      if (directoryHandle) {
-        try {
-          const fileHandle = await directoryHandle.getFileHandle(
-            downloadFilename,
-            { create: true },
-          );
-          const writable = await (fileHandle as any).createWritable();
-          await writable.write(blob);
-          await writable.close();
-          setStatus({
-            type: "success",
-            message: (t as any).genSuccessFolder.replace("{filename}", downloadFilename),
-          });
-        } catch (err) {
-          console.error("Failed to save to folder:", err);
-          // Fallback to normal download
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement("a");
-          a.href = url;
-          a.download = downloadFilename;
-          a.click();
-          URL.revokeObjectURL(url);
-          setStatus({
-            type: "success",
-            message: (t as any).genSuccessBrowser,
-          });
-        }
-      } else {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = downloadFilename;
-        a.click();
-        URL.revokeObjectURL(url);
-        setStatus({ type: "success", message: (t as any).genSuccessBrowser });
-      }
+      // Always fallback to normal browser download as requested
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = downloadFilename;
+      a.click();
+      URL.revokeObjectURL(url);
+      setStatus({
+        type: "success",
+        message: (t as any).genSuccessBrowser,
+      });
     } catch {
       setStatus({ type: "error", message: t.genFailed });
     } finally {
@@ -519,6 +475,8 @@ export default function Home() {
               handleCsvUpload={handleCsvUpload}
               csvInputRef={csvInputRef}
               shakingFields={shakingFields}
+              fullName={fullName}
+              role={role}
             />
 
             {/* Right Column: Storage */}
@@ -531,9 +489,6 @@ export default function Home() {
               handleTemplateUpload={handleTemplateUpload}
               templateInputRef={templateInputRef}
               templateBtnRef={templateBtnRef}
-              directoryHandle={directoryHandle}
-              chooseDirectory={chooseDirectory}
-              outputDirBtnRef={outputDirBtnRef}
               outputFilenameFormat={outputFilenameFormat}
               setOutputFilenameFormat={setOutputFilenameFormat}
               shakingFields={shakingFields}

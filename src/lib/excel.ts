@@ -84,7 +84,7 @@ export async function generateTimesheet(
   // --- 2. Update period text in G3 ---
   const lastDay = daysInMonth.toString().padStart(2, "0");
   const monthName = MONTH_NAMES_ID[month];
-  ws.getCell("G3").value = `01 ${monthName} - ${lastDay} ${monthName}`;
+  ws.getCell("G3").value = `01 ${monthName} - ${lastDay} ${monthName} ${year}`;
 
   // --- 2.1. Update Full Name in B1 and Role in G1 ---
   if (signatures?.fullName) {
@@ -341,26 +341,4 @@ export function getOutputFilename(year: number, month: number, format?: string):
       .replace(/{YYYY}/g, year.toString());
   }
   return `ADL_RENALDI_DWI_IRAWAN_TIMESHEET_${monthUpper}_${year}`;
-}
-
-/**
- * Save the generated timesheet to the output directory
- */
-export async function saveTimesheet(
-  buffer: any,
-  year: number,
-  month: number,
-  outputDirOverride?: string,
-  filenameFormat?: string
-): Promise<string> {
-  const fs = await import("fs/promises");
-  const outputDir = outputDirOverride || process.env.OUTPUT_DIR || "";
-  
-  if (!outputDir) return ""; // Skip if no directory is specified
-
-  const filename = `${getOutputFilename(year, month, filenameFormat)}.xlsx`;
-  const outputPath = path.join(outputDir, filename);
-
-  await fs.writeFile(outputPath, buffer);
-  return outputPath;
 }

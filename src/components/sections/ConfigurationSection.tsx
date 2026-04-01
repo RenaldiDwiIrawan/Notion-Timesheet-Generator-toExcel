@@ -30,6 +30,8 @@ interface ConfigurationSectionProps {
   handleCsvUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   csvInputRef: React.RefObject<HTMLInputElement | null>;
   shakingFields: string[];
+  fullName?: string;
+  role?: string;
 }
 
 export default function ConfigurationSection({
@@ -61,6 +63,8 @@ export default function ConfigurationSection({
   handleCsvUpload,
   csvInputRef,
   shakingFields,
+  fullName,
+  role,
 }: ConfigurationSectionProps) {
   return (
     <div className="space-y-6">
@@ -446,7 +450,9 @@ export default function ConfigurationSection({
                       "jumat",
                       "sabtu",
                     ];
-                    let content = `Timesheet Period: ${t.months[month - 1]} ${year}\n\n`;
+                    let content = `Timesheet Period: ${t.months[month - 1]} ${year}\n`;
+                    content += `Name: ${fullName || ""}\n`;
+                    content += `Role: ${role || ""}\n\n`;
                     const daysInMonth = new Date(year, month, 0).getDate();
                     for (let d = 1; d <= daysInMonth; d++) {
                       const date = new Date(year, month - 1, d);

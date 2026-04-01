@@ -9,9 +9,6 @@ interface StorageSectionProps {
   handleTemplateUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   templateInputRef: React.RefObject<HTMLInputElement | null>;
   templateBtnRef: React.RefObject<HTMLButtonElement | null>;
-  directoryHandle: any;
-  chooseDirectory: () => void;
-  outputDirBtnRef: React.RefObject<HTMLButtonElement | null>;
   outputFilenameFormat: string;
   setOutputFilenameFormat: (val: string) => void;
   shakingFields: string[];
@@ -26,9 +23,6 @@ export default function StorageSection({
   handleTemplateUpload,
   templateInputRef,
   templateBtnRef,
-  directoryHandle,
-  chooseDirectory,
-  outputDirBtnRef,
   outputFilenameFormat,
   setOutputFilenameFormat,
   shakingFields,
@@ -117,29 +111,6 @@ export default function StorageSection({
                 />
               </div>
             )}
-          </div>
-
-          <div className="space-y-3">
-            <label
-              className={`text-[10px] font-bold uppercase tracking-widest ${isDark ? "text-zinc-500" : "text-zinc-400"}`}
-            >
-              {t.outputDir}
-            </label>
-            <div className="flex gap-2">
-              <div
-                className={`flex-1 flex items-center px-4 rounded-xl border text-xs truncate font-medium ${directoryHandle ? (isDark ? "border-blue-500/40 bg-blue-500/5 text-blue-300" : "border-blue-200 bg-blue-50 text-blue-700") : isDark ? "border-zinc-700 bg-zinc-800/40 text-zinc-500" : "border-zinc-200 bg-zinc-50 text-zinc-400"}`}
-              >
-                {directoryHandle?.name || t.selectOutput}
-              </div>
-              <button
-                type="button"
-                onClick={chooseDirectory}
-                ref={outputDirBtnRef as any}
-                className={`shrink-0 px-4 py-2.5 rounded-xl bg-blue-600 text-white text-xs font-bold shadow-lg shadow-blue-500/20 active:scale-95 transition-all ${shakingFields.includes(t.fieldOutputDir) ? "animate-shake ring-4 ring-red-500 bg-red-600" : ""}`}
-              >
-                {t.choose}
-              </button>
-            </div>
           </div>
 
           <div className="space-y-3">

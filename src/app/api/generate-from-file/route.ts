@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import {
   generateTimesheet,
   getOutputFilename,
-  saveTimesheet,
 } from "@/lib/excel";
 import { TimesheetEntry } from "@/lib/notion";
 
@@ -93,7 +92,6 @@ export async function POST(request: NextRequest) {
       templatePath,
       templateData,
       outputFilenameFormat,
-      outputDir,
     } = await request.json();
 
     if (!notepadData || !year || !month) {
@@ -138,10 +136,7 @@ export async function POST(request: NextRequest) {
       }
     );
 
-    // 3. Save to output directory
-    const savedPath = await saveTimesheet(buffer, year, month, outputDir, outputFilenameFormat);
-
-    // 4. Also return the file as download
+    // 3. Generate the output filename
     const filename = `${getOutputFilename(year, month, outputFilenameFormat)}.xlsx`;
 
     return new NextResponse(new Uint8Array(buffer), {
@@ -149,7 +144,6 @@ export async function POST(request: NextRequest) {
         "Content-Type":
           "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         "Content-Disposition": `attachment; filename="${filename}"`,
-        "X-Saved-Path": savedPath,
       },
     });
   } catch (error) {
