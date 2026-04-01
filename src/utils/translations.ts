@@ -14,6 +14,7 @@ export const translations = {
     uploadNotepad: "Upload Filled Notepad",
     uploadNotepadPlaceholder: "Choose your filled .txt file...",
     uploadTemplatePlaceholder: "Choose your .xlsx template...",
+    folderRestricted: "Cannot access this folder. Please choose a different folder (e.g., in Documents).",
     notepadUploaded: "Notepad file loaded successfully!",
     notepadUploadError: "Failed to read file.",
     notepadDesc:
@@ -51,6 +52,8 @@ export const translations = {
     processingMsg: "Processing Notepad & generating...",
     genFailed: "Generation failed.",
     genSuccess: "Generated!",
+    genSuccessFolder: "Generated! Saved to folder: {filename}",
+    genSuccessBrowser: "Generated! Downloaded via browser.",
     validationError: "Please fill in all required fields:\n{fields}",
     fieldSubmitterName: "Your Name",
     fieldApproverName: "Buddy/Approver Name",
@@ -148,6 +151,7 @@ export const translations = {
     uploadNotepad: "Upload Notepad yang Sudah Diisi",
     uploadNotepadPlaceholder: "Pilih file .txt Anda...",
     uploadTemplatePlaceholder: "Pilih file .xlsx template Anda...",
+    folderRestricted: "Folder tidak bisa diakses. Silakan pilih folder lain (misal di Documents atau Desktop).",
     notepadUploaded: "File Notepad berhasil dimuat!",
     notepadUploadError: "Gagal membaca file.",
     notepadDesc:
@@ -185,6 +189,8 @@ export const translations = {
     processingMsg: "Memproses Notepad & membuat timesheet...",
     genFailed: "Gagal membuat timesheet.",
     genSuccess: "Berhasil dibuat!",
+    genSuccessFolder: "Berhasil! Tersimpan di folder: {filename}",
+    genSuccessBrowser: "Berhasil! Terunduh otomatis melalui browser.",
     validationError: "Silakan isi semua kolom yang wajib diisi:\n{fields}",
     fieldSubmitterName: "Nama Anda",
     fieldApproverName: "Nama Buddy/Atasan",

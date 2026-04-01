@@ -110,8 +110,15 @@ export default function Home() {
     try {
       const handle = await (window as any).showDirectoryPicker();
       setDirectoryHandle(handle);
-    } catch (err) {
+      setStatus({ type: "success", message: "Folder selected successfully!" });
+      setTimeout(() => setStatus(null), 3000);
+    } catch (err: any) {
+      if (err.name === "AbortError") return;
       console.error("Directory picker error:", err);
+      setStatus({
+        type: "error",
+        message: (t as any).folderRestricted,
+      });
     }
   };
 
@@ -269,8 +276,6 @@ export default function Home() {
       missingFields.push({ label: t.fieldSubmitterName, ref: submitterNameRef });
     if (!approverName.trim())
       missingFields.push({ label: t.fieldApproverName, ref: approverNameRef });
-    if (!directoryHandle)
-      missingFields.push({ label: t.fieldOutputDir, ref: outputDirBtnRef });
     if (useCustomTemplate && !customTemplateData)
       missingFields.push({ label: t.fieldTemplatePath, ref: templateBtnRef });
 
@@ -369,7 +374,7 @@ export default function Home() {
           await writable.close();
           setStatus({
             type: "success",
-            message: `${t.genSuccess} Saved to folder: ${downloadFilename}`,
+            message: (t as any).genSuccessFolder.replace("{filename}", downloadFilename),
           });
         } catch (err) {
           console.error("Failed to save to folder:", err);
@@ -382,7 +387,7 @@ export default function Home() {
           URL.revokeObjectURL(url);
           setStatus({
             type: "success",
-            message: `${t.genSuccess} (Downloaded to browser)`,
+            message: (t as any).genSuccessBrowser,
           });
         }
       } else {
@@ -392,7 +397,7 @@ export default function Home() {
         a.download = downloadFilename;
         a.click();
         URL.revokeObjectURL(url);
-        setStatus({ type: "success", message: t.genSuccess });
+        setStatus({ type: "success", message: (t as any).genSuccessBrowser });
       }
     } catch {
       setStatus({ type: "error", message: t.genFailed });
