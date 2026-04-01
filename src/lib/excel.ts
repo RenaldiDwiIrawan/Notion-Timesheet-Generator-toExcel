@@ -156,6 +156,19 @@ export async function generateTimesheet(
       const dayOfWeek = date.getUTCDay(); // 0=Sunday, 6=Saturday
       const isWeekend = dayOfWeek === 0 || dayOfWeek === 6; // Saturday & Sunday
 
+      // Explicitly set the date and day name for every row to ensure accuracy
+      const cellA = row.getCell(1);
+      const cellB = row.getCell(2);
+      cellB.value = date;
+      cellB.numFmt = "dd/mm/yyyy"; // Ensure consistent date format
+      cellA.value = { formula: `TEXT(B${rowNum},"dddd")` } as any;
+
+      // Apply consistent styling to Day and Date columns
+      [cellA, cellB].forEach(cell => {
+        cell.alignment = { horizontal: "center", vertical: "middle" };
+        cell.font = { name: "Calibri", size: 12 };
+      });
+
       // Apply fill to table columns (A-J) using style clone to avoid ExcelJS shared style bugs
       for (let col = TABLE_COL_START; col <= TABLE_COL_END; col++) {
         const cell = row.getCell(col);
@@ -332,13 +345,41 @@ export async function generateTimesheet(
 /**
  * Generate the output filename
  */
-export function getOutputFilename(year: number, month: number, format?: string): string {
+export function getOutputFilename(
+  year: number,
+  month: number,
+  format?: string,
+  fullName?: string,
+  role?: string
+): string {
   const monthUpper = MONTH_NAMES_ID_UPPER[month];
   if (format) {
-    return format
+    let filename = format
       .replace(/{MM}/g, month.toString().padStart(2, "0"))
       .replace(/{MMM}/g, monthUpper)
       .replace(/{YYYY}/g, year.toString());
+
+    if (fullName) {
+      // Create a URL-safe version of the name (uppercase, no spaces)
+      const safeName = fullName.toUpperCase().replace(/\s+/g, "_");
+      filename = filename
+        .replace(/{NAME}/g, safeName)
+        .replace(/{NAMA_ANDA}/g, safeName)
+        .replace(/{NAMA}/g, safeName);
+    }
+    if (role) {
+      const safeRole = role.toUpperCase().replace(/\s+/g, "_");
+      filename = filename
+        .replace(/{ROLE}/g, safeRole)
+        .replace(/{VENDOR}/g, safeRole)
+        .replace(/{VENDOR_ANDA}/g, safeRole)
+        .replace(/{JABATAN}/g, safeRole);
+    }
+    return filename;
+  }
+  if (fullName) {
+    const safeName = fullName.toUpperCase().replace(/\s+/g, "_");
+    return `ADL_${safeName}_TIMESHEET_${monthUpper}_${year}`;
   }
   return `ADL_RENALDI_DWI_IRAWAN_TIMESHEET_${monthUpper}_${year}`;
 }

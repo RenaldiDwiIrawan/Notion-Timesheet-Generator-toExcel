@@ -11,6 +11,7 @@ interface StorageSectionProps {
   templateBtnRef: React.RefObject<HTMLButtonElement | null>;
   outputFilenameFormat: string;
   setOutputFilenameFormat: (val: string) => void;
+  outputFilenameFormatRef: React.RefObject<HTMLInputElement | null>;
   shakingFields: string[];
 }
 
@@ -25,6 +26,7 @@ export default function StorageSection({
   templateBtnRef,
   outputFilenameFormat,
   setOutputFilenameFormat,
+  outputFilenameFormatRef,
   shakingFields,
 }: StorageSectionProps) {
   return (
@@ -121,7 +123,9 @@ export default function StorageSection({
             </label>
             <input
               type="text"
+              ref={outputFilenameFormatRef as any}
               value={outputFilenameFormat}
+              placeholder={t.fileNameFormatPlaceholder}
               onChange={(e) => {
                 setOutputFilenameFormat(e.target.value);
                 localStorage.setItem(
@@ -129,7 +133,7 @@ export default function StorageSection({
                   e.target.value,
                 );
               }}
-              className={`w-full rounded-xl border px-4 py-3 text-sm outline-none transition-all placeholder:text-zinc-500 font-medium ${isDark ? "border-zinc-700 bg-zinc-800/50 text-zinc-200 focus:border-blue-500 focus:bg-zinc-800" : "border-zinc-200 bg-white text-zinc-900 focus:border-blue-400 focus:ring-4 focus:ring-blue-500/5 shadow-sm"}`}
+              className={`w-full rounded-xl border px-4 py-3 text-sm outline-none transition-all placeholder:text-zinc-500 font-medium ${isDark ? "border-zinc-700 bg-zinc-800/50 text-zinc-200 focus:border-blue-500 focus:bg-zinc-800" : "border-zinc-200 bg-white text-zinc-900 focus:border-blue-400 focus:ring-4 focus:ring-blue-500/5 shadow-sm"} ${shakingFields.includes(t.fieldFileNameFormat) ? "animate-shake ring-2 ring-red-500 border-red-500" : ""}`}
             />
             <p
               className={`text-[10px] italic pt-1 ${isDark ? "text-zinc-500 font-medium" : "text-zinc-400"}`}

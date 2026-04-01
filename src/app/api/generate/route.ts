@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
     );
 
     // 3. Generate the output filename
-    const filename = `${getOutputFilename(year, month, outputFilenameFormat)}.xlsx`;
+    const filename = `${getOutputFilename(year, month, outputFilenameFormat, fullName, role)}.xlsx`;
 
     return new NextResponse(new Uint8Array(buffer), {
       headers: {

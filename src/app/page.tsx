@@ -63,9 +63,7 @@ export default function Home() {
   const [approverName, setApproverName] = useState("");
   const [approverDate, setApproverDate] = useState(getLastDayStr(year, month));
 
-  const [outputFilenameFormat, setOutputFilenameFormat] = useState(
-    "{VENDOR}_{NAME}_TIMESHEET_{MM}_{YYYY}",
-  );
+  const [outputFilenameFormat, setOutputFilenameFormat] = useState("");
 
   const [showSetupHelp, setShowSetupHelp] = useState(false);
   const [showWelcomeGuide, setShowWelcomeGuide] = useState(false);
@@ -79,6 +77,9 @@ export default function Home() {
   const fullNameRef = useRef<HTMLInputElement>(null);
   const roleRef = useRef<HTMLInputElement>(null);
   const approverNameRef = useRef<HTMLInputElement>(null);
+  const submitterDateRef = useRef<HTMLInputElement>(null);
+  const approverDateRef = useRef<HTMLInputElement>(null);
+  const outputFilenameFormatRef = useRef<HTMLInputElement>(null);
   const pageIdRef = useRef<HTMLInputElement>(null);
   const templateInputRef = useRef<HTMLInputElement>(null);
   const templateBtnRef = useRef<HTMLButtonElement>(null);
@@ -142,15 +143,6 @@ export default function Home() {
     );
     if (savedOutputFilenameFormat)
       setOutputFilenameFormat(savedOutputFilenameFormat);
-    else {
-      const isIndo =
-        (savedLang || navigator.language.slice(0, 2).toUpperCase()) === "ID";
-      setOutputFilenameFormat(
-        isIndo
-          ? "{VENDOR_ANDA}_{NAMA_ANDA}_TIMESHEET_{MM}_{YYYY}"
-          : "{VENDOR}_{NAME}_TIMESHEET_{MM}_{YYYY}",
-      );
-    }
 
     setShowWelcomeGuide(true);
     setIsAutoGuide(true);
@@ -270,8 +262,14 @@ export default function Home() {
       missingFields.push({ label: t.role, ref: roleRef });
     if (!submitterName.trim())
       missingFields.push({ label: t.fieldSubmitterName, ref: submitterNameRef });
+    if (!submitterDate.trim())
+      missingFields.push({ label: t.fieldSubmitterDate, ref: submitterDateRef });
     if (!approverName.trim())
       missingFields.push({ label: t.fieldApproverName, ref: approverNameRef });
+    if (!approverDate.trim())
+      missingFields.push({ label: t.fieldApproverDate, ref: approverDateRef });
+    if (!outputFilenameFormat.trim())
+      missingFields.push({ label: t.fieldFileNameFormat, ref: outputFilenameFormatRef });
     if (useCustomTemplate && !customTemplateData)
       missingFields.push({ label: t.fieldTemplatePath, ref: templateBtnRef });
 
@@ -405,6 +403,7 @@ export default function Home() {
       "timesheet_approverName",
       "timesheet_notionApiKey",
       "timesheet_outputFilenameFormat",
+      "timesheet_useCustomTemplate",
     ];
     keysToRemove.forEach((k) => localStorage.removeItem(k));
     setNotionApiKey("");
@@ -419,7 +418,10 @@ export default function Home() {
     setCsvData(null);
     setCsvFileName("");
     if (csvInputRef.current) csvInputRef.current.value = "";
-    setOutputFilenameFormat("{VENDOR}_{NAME}_TIMESHEET_{MM}_{YYYY}");
+    setUseCustomTemplate(false);
+    setCustomTemplateData(null);
+    setCustomTemplateName("");
+    setOutputFilenameFormat("");
     setStatus({ type: "success", message: t.resetData + " ✔️" });
     setTimeout(() => setStatus(null), 3000);
   };
@@ -491,6 +493,7 @@ export default function Home() {
               templateBtnRef={templateBtnRef}
               outputFilenameFormat={outputFilenameFormat}
               setOutputFilenameFormat={setOutputFilenameFormat}
+              outputFilenameFormatRef={outputFilenameFormatRef}
               shakingFields={shakingFields}
             />
           </div>
@@ -524,6 +527,8 @@ export default function Home() {
               localStorage.setItem("timesheet_approverName", val);
             }}
             approverNameRef={approverNameRef}
+            submitterDateRef={submitterDateRef}
+            approverDateRef={approverDateRef}
             approverDate={approverDate}
             setApproverDate={setApproverDate}
             submitterSignature={submitterSignature}

@@ -33,6 +33,7 @@ export const translations = {
     selectTemplate: "Default template used. Choose to override...",
     choose: "Choose File",
     fileNameFormat: "File Name Format",
+    fileNameFormatPlaceholder: "{VENDOR}_{NAME}_TIMESHEET_{MM}_{YYYY}",
     signatures: "Signatures",
     subBy: "Submitted By",
     subNamePlaceholder: "Your Name",
@@ -59,8 +60,11 @@ export const translations = {
     validationError: "Please fill in all required fields:\n{fields}",
     fieldSubmitterName: "Your Name",
     fieldApproverName: "Buddy/Approver Name",
+    fieldSubmitterDate: "Submission Date",
+    fieldApproverDate: "Approval Date",
     fieldOutputDir: "Output Directory",
     fieldTemplatePath: "Custom Excel Template",
+    fieldFileNameFormat: "File Name Format",
 
     // Welcome Guide
     wgTitle: "Guide",
@@ -173,6 +177,7 @@ export const translations = {
     choose: "Pilih File",
     selectOutput: "Pilih lokasi penyimpanan...",
     fileNameFormat: "Format Nama File",
+    fileNameFormatPlaceholder: "{VENDOR_ANDA}_{NAMA_ANDA}_TIMESHEET_{MM}_{YYYY}",
     signatures: "Tanda Tangan",
     subBy: "Dibuat Oleh",
     subNamePlaceholder: "Nama Anda",
@@ -199,8 +204,11 @@ export const translations = {
     validationError: "Silakan isi semua kolom yang wajib diisi:\n{fields}",
     fieldSubmitterName: "Nama Anda",
     fieldApproverName: "Nama Buddy/Atasan",
+    fieldSubmitterDate: "Tanggal Dibuat",
+    fieldApproverDate: "Tanggal Disetujui",
     fieldOutputDir: "Direktori Output",
     fieldTemplatePath: "Template Excel Custom",
+    fieldFileNameFormat: "Format Nama File",
 
     // How to Use Notepad
     hnTitle: "Cara Pakai Notepad",

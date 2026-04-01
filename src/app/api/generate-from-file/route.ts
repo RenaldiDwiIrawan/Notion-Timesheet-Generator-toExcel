@@ -49,7 +49,8 @@ function parseNotepadText(text: string): TimesheetEntry[] {
     } else if (currentEntry) {
       // Continuation of previous entry's task (multi-line)
       // Skip lines that look like "1." or "2." if they are empty
-      if (line === "1." || line === "2." || line === "3.") continue;
+      // Also skip lines that are just numbers or markers that shouldn't be task content
+      if (/^\d+\.?\s*$/.test(line)) continue;
 
       if (currentEntry.tasks) {
         currentEntry.tasks += "\n" + line;
@@ -137,7 +138,7 @@ export async function POST(request: NextRequest) {
     );
 
     // 3. Generate the output filename
-    const filename = `${getOutputFilename(year, month, outputFilenameFormat)}.xlsx`;
+    const filename = `${getOutputFilename(year, month, outputFilenameFormat, fullName, role)}.xlsx`;
 
     return new NextResponse(new Uint8Array(buffer), {
       headers: {

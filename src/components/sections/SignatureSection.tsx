@@ -14,11 +14,13 @@ interface SignatureSectionProps {
   submitterNameRef: React.RefObject<HTMLInputElement | null>;
   submitterDate: string;
   setSubmitterDate: (val: string) => void;
+  submitterDateRef: React.RefObject<HTMLInputElement | null>;
   approverName: string;
   setApproverName: (val: string) => void;
   approverNameRef: React.RefObject<HTMLInputElement | null>;
   approverDate: string;
   setApproverDate: (val: string) => void;
+  approverDateRef: React.RefObject<HTMLInputElement | null>;
   submitterSignature: string | null;
   setSubmitterSignature: (val: string | null) => void;
   signatureRef: React.RefObject<HTMLInputElement | null>;
@@ -44,11 +46,13 @@ export default function SignatureSection({
   submitterNameRef,
   submitterDate,
   setSubmitterDate,
+  submitterDateRef,
   approverName,
   setApproverName,
   approverNameRef,
   approverDate,
   setApproverDate,
+  approverDateRef,
   submitterSignature,
   setSubmitterSignature,
   signatureRef,
@@ -164,9 +168,10 @@ export default function SignatureSection({
             </div>
             <input
               type="text"
+              ref={submitterDateRef as any}
               value={submitterDate}
               onChange={(e) => setSubmitterDate(e.target.value)}
-              className={`w-full rounded-xl border px-4 py-3 text-sm outline-none transition-all font-medium ${isDark ? "border-zinc-700 bg-zinc-800/50 text-zinc-200 focus:border-blue-500" : "border-zinc-200 bg-white text-zinc-900 focus:border-blue-400 shadow-sm"}`}
+              className={`w-full rounded-xl border px-4 py-3 text-sm outline-none transition-all font-medium ${isDark ? "border-zinc-700 bg-zinc-800/50 text-zinc-200 focus:border-blue-500" : "border-zinc-200 bg-white text-zinc-900 focus:border-blue-400 shadow-sm"} ${shakingFields.includes(t.fieldSubmitterDate) ? "animate-shake ring-2 ring-red-500 border-red-500" : ""}`}
             />
           </div>
           <div className="space-y-3">
@@ -209,9 +214,10 @@ export default function SignatureSection({
             </div>
             <input
               type="text"
+              ref={approverDateRef as any}
               value={approverDate}
               onChange={(e) => setApproverDate(e.target.value)}
-              className={`w-full rounded-xl border px-4 py-3 text-sm outline-none transition-all font-medium ${isDark ? "border-zinc-700 bg-zinc-800/50 text-zinc-200 focus:border-blue-500" : "border-zinc-200 bg-white text-zinc-900 focus:border-blue-400 shadow-sm"}`}
+              className={`w-full rounded-xl border px-4 py-3 text-sm outline-none transition-all font-medium ${isDark ? "border-zinc-700 bg-zinc-800/50 text-zinc-200 focus:border-blue-500" : "border-zinc-200 bg-white text-zinc-900 focus:border-blue-400 shadow-sm"} ${shakingFields.includes(t.fieldApproverDate) ? "animate-shake ring-2 ring-red-500 border-red-500" : ""}`}
             />
           </div>
         </div>
