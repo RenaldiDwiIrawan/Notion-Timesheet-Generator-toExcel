@@ -52,6 +52,8 @@ export default function Home() {
   };
 
   const [submitterName, setSubmitterName] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [role, setRole] = useState("");
   const [submitterDate, setSubmitterDate] = useState(
     getLastDayStr(year, month),
   );
@@ -74,6 +76,8 @@ export default function Home() {
 
   // Refs for focusing on validation failure
   const submitterNameRef = useRef<HTMLInputElement>(null);
+  const fullNameRef = useRef<HTMLInputElement>(null);
+  const roleRef = useRef<HTMLInputElement>(null);
   const approverNameRef = useRef<HTMLInputElement>(null);
   const pageIdRef = useRef<HTMLInputElement>(null);
   const templateInputRef = useRef<HTMLInputElement>(null);
@@ -138,6 +142,12 @@ export default function Home() {
 
     const savedSubmitterName = localStorage.getItem("timesheet_submitterName");
     if (savedSubmitterName) setSubmitterName(savedSubmitterName);
+
+    const savedFullName = localStorage.getItem("timesheet_fullName");
+    if (savedFullName) setFullName(savedFullName);
+
+    const savedRole = localStorage.getItem("timesheet_role");
+    if (savedRole) setRole(savedRole);
 
     const savedApproverName = localStorage.getItem("timesheet_approverName");
     if (savedApproverName) setApproverName(savedApproverName);
@@ -272,6 +282,10 @@ export default function Home() {
       missingFields.push({ label: t.notionTarget, ref: pageIdRef });
     if (dataSource === "notepad" && !csvData)
       missingFields.push({ label: t.notepadTarget, ref: csvInputRef });
+    if (!fullName.trim())
+      missingFields.push({ label: t.fullName, ref: fullNameRef });
+    if (!role.trim())
+      missingFields.push({ label: t.role, ref: roleRef });
     if (!submitterName.trim())
       missingFields.push({ label: t.fieldSubmitterName, ref: submitterNameRef });
     if (!approverName.trim())
@@ -325,6 +339,8 @@ export default function Home() {
               submitterSignature,
               approverName,
               approverDate,
+              fullName,
+              role,
               templateData: useCustomTemplate ? customTemplateData : null,
               outputFilenameFormat,
               notionApiKey,
@@ -338,6 +354,8 @@ export default function Home() {
               submitterSignature,
               approverName,
               approverDate,
+              fullName,
+              role,
               templateData: useCustomTemplate ? customTemplateData : null,
               outputFilenameFormat,
             };
@@ -426,6 +444,8 @@ export default function Home() {
     if (!confirm(t.resetData + "?")) return;
     const keysToRemove = [
       "timesheet_submitterName",
+      "timesheet_fullName",
+      "timesheet_role",
       "timesheet_approverName",
       "timesheet_notionApiKey",
       "timesheet_outputFilenameFormat",
@@ -434,6 +454,8 @@ export default function Home() {
     setNotionApiKey("");
     setPageId("");
     setPages([]);
+    setFullName("");
+    setRole("");
     setSubmitterName("");
     setSubmitterSignature(null);
     setApproverName("");
@@ -521,13 +543,31 @@ export default function Home() {
           <SignatureSection
             t={t}
             isDark={isDark}
+            fullName={fullName}
+            setFullName={(val) => {
+              setFullName(val);
+              localStorage.setItem("timesheet_fullName", val);
+            }}
+            fullNameRef={fullNameRef}
+            role={role}
+            setRole={(val) => {
+              setRole(val);
+              localStorage.setItem("timesheet_role", val);
+            }}
+            roleRef={roleRef}
             submitterName={submitterName}
-            setSubmitterName={setSubmitterName}
+            setSubmitterName={(val) => {
+              setSubmitterName(val);
+              localStorage.setItem("timesheet_submitterName", val);
+            }}
             submitterNameRef={submitterNameRef}
             submitterDate={submitterDate}
             setSubmitterDate={setSubmitterDate}
             approverName={approverName}
-            setApproverName={setApproverName}
+            setApproverName={(val) => {
+              setApproverName(val);
+              localStorage.setItem("timesheet_approverName", val);
+            }}
             approverNameRef={approverNameRef}
             approverDate={approverDate}
             setApproverDate={setApproverDate}

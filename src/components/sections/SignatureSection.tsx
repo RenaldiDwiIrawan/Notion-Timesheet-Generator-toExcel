@@ -3,6 +3,12 @@ import React from "react";
 interface SignatureSectionProps {
   t: any;
   isDark: boolean;
+  fullName: string;
+  setFullName: (val: string) => void;
+  fullNameRef: React.RefObject<HTMLInputElement | null>;
+  role: string;
+  setRole: (val: string) => void;
+  roleRef: React.RefObject<HTMLInputElement | null>;
   submitterName: string;
   setSubmitterName: (val: string) => void;
   submitterNameRef: React.RefObject<HTMLInputElement | null>;
@@ -27,6 +33,12 @@ interface SignatureSectionProps {
 export default function SignatureSection({
   t,
   isDark,
+  fullName,
+  setFullName,
+  fullNameRef,
+  role,
+  setRole,
+  roleRef,
   submitterName,
   setSubmitterName,
   submitterNameRef,
@@ -76,6 +88,39 @@ export default function SignatureSection({
           <div
             className={`h-px flex-1 ml-4 ${isDark ? "bg-zinc-800" : "bg-zinc-100"}`}
           ></div>
+        </div>
+
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 mb-6">
+          <div className="space-y-3">
+            <label
+              className={`text-[10px] font-bold uppercase tracking-widest ${isDark ? "text-zinc-500" : "text-zinc-400"}`}
+            >
+              {t.fullName}
+            </label>
+            <input
+              type="text"
+              ref={fullNameRef as any}
+              value={fullName}
+              placeholder={t.fullNamePlaceholder}
+              onChange={(e) => setFullName(e.target.value)}
+              className={`w-full rounded-xl border px-4 py-3 text-sm outline-none transition-all placeholder:text-zinc-500 font-medium ${isDark ? "border-zinc-700 bg-zinc-800/50 text-zinc-200 focus:border-blue-500" : "border-zinc-200 bg-white text-zinc-900 focus:border-blue-400 shadow-sm"} ${shakingFields.includes(t.fullName) ? "animate-shake ring-2 ring-red-500 border-red-500" : ""}`}
+            />
+          </div>
+          <div className="space-y-3">
+            <label
+              className={`text-[10px] font-bold uppercase tracking-widest ${isDark ? "text-zinc-500" : "text-zinc-400"}`}
+            >
+              {t.role}
+            </label>
+            <input
+              type="text"
+              ref={roleRef as any}
+              value={role}
+              placeholder={t.rolePlaceholder}
+              onChange={(e) => setRole(e.target.value)}
+              className={`w-full rounded-xl border px-4 py-3 text-sm outline-none transition-all placeholder:text-zinc-500 font-medium ${isDark ? "border-zinc-700 bg-zinc-800/50 text-zinc-200 focus:border-blue-500" : "border-zinc-200 bg-white text-zinc-900 focus:border-blue-400 shadow-sm"} ${shakingFields.includes(t.role) ? "animate-shake ring-2 ring-red-500 border-red-500" : ""}`}
+            />
+          </div>
         </div>
 
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">

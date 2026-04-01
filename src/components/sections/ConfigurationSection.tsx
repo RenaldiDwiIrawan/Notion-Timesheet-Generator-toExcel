@@ -451,10 +451,15 @@ export default function ConfigurationSection({
                     for (let d = 1; d <= daysInMonth; d++) {
                       const date = new Date(year, month - 1, d);
                       const dayOfWeek = date.getDay();
-                      // Only include weekdays (Monday-Friday) in the notepad template
-                      if (dayOfWeek >= 1 && dayOfWeek <= 5) {
-                        content += `${d}/${daysIndo[dayOfWeek]}\t\n1. \n2. \n3. \n\n`;
+                      const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+
+                      // Include all days, but mark weekends differently if needed.
+                      // For simplicity, we just list every day so the user can fill any of them.
+                      content += `${d}/${daysIndo[dayOfWeek]}\t\n`;
+                      if (!isWeekend) {
+                        content += `1. \n2. \n3. \n`;
                       }
+                      content += `\n`;
                     }
                     const blob = new Blob([content], { type: "text/plain" });
                     const url = URL.createObjectURL(blob);

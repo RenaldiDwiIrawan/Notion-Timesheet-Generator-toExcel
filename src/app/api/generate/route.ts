@@ -17,6 +17,8 @@ export async function POST(request: NextRequest) {
       submitterSignature,
       approverName,
       approverDate,
+      fullName,
+      role,
       templatePath,
       templateData,
       outputFilenameFormat,
@@ -54,6 +56,8 @@ export async function POST(request: NextRequest) {
       year,
       month,
       {
+        fullName: fullName || "",
+        role: role || "",
         submitterName: submitterName || "Renaldi Dwi Irawan",
         submitterDate: submitterDate || "",
         submitterSignature: submitterSignature || null,

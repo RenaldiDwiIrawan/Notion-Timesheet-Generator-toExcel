@@ -11,21 +11,25 @@ import { TimesheetEntry } from "@/lib/notion";
  * Supports multi-line tasks and flexible separators.
  */
 function parseNotepadText(text: string): TimesheetEntry[] {
-  const lines = text.split("\n").map(l => l.trim()).filter(l => l.length > 0);
+  // 1. Remove UTF-8 BOM if present
+  const cleanText = text.replace(/^\uFEFF/, "");
 
-  if (lines.length < 2) {
-    throw new Error("File harus memiliki minimal header dan satu baris data.");
+  // 2. Split by any newline format (\n or \r\n)
+  const lines = cleanText.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
+
+  if (lines.length < 1) {
+    throw new Error("File is empty.");
   }
 
   const entries: TimesheetEntry[] = [];
   let currentEntry: TimesheetEntry | null = null;
 
-  // Regex for date marker at start: digit/dayName
+  // Regex for date marker: "1/senin" or "01 / Senin"
+  // It looks for a digit, then a slash, then text (day name)
   const dateMarkerRe = /^(\d{1,2})\s*\/\s*([a-zA-Z]+)/;
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
-
     const match = line.match(dateMarkerRe);
 
     if (match) {
@@ -33,8 +37,7 @@ function parseNotepadText(text: string): TimesheetEntry[] {
       const day = parseInt(match[1], 10);
       const dayName = match[2].toLowerCase();
 
-      // The task might be on the same line after the date marker
-      // Find where the date marker ends
+      // Find where the date marker ends to get any task on the same line
       const markerText = match[0];
       const taskOnThisLine = line.substring(markerText.length).trim();
 
@@ -45,7 +48,10 @@ function parseNotepadText(text: string): TimesheetEntry[] {
       };
       entries.push(currentEntry);
     } else if (currentEntry) {
-      // Continuation of previous entry's task
+      // Continuation of previous entry's task (multi-line)
+      // Skip lines that look like "1." or "2." if they are empty
+      if (line === "1." || line === "2." || line === "3.") continue;
+
       if (currentEntry.tasks) {
         currentEntry.tasks += "\n" + line;
       } else {
@@ -54,7 +60,7 @@ function parseNotepadText(text: string): TimesheetEntry[] {
     }
   }
 
-  // Final sort just in case
+  // Final sort to ensure they are in calendar order
   entries.sort((a, b) => a.day - b.day);
   return entries;
 }
@@ -82,6 +88,8 @@ export async function POST(request: NextRequest) {
       submitterSignature,
       approverName,
       approverDate,
+      fullName,
+      role,
       templatePath,
       templateData,
       outputFilenameFormat,
@@ -118,6 +126,8 @@ export async function POST(request: NextRequest) {
       year,
       month,
       {
+        fullName: fullName || "",
+        role: role || "",
         submitterName: submitterName || "",
         submitterDate: submitterDate || "",
         submitterSignature: submitterSignature || null,

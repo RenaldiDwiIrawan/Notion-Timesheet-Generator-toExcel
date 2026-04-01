@@ -47,6 +47,8 @@ export async function generateTimesheet(
   year: number,
   month: number,
   signatures?: {
+    fullName?: string;
+    role?: string;
     submitterName: string;
     submitterDate: string;
     submitterSignature: string | null;
@@ -83,6 +85,14 @@ export async function generateTimesheet(
   const lastDay = daysInMonth.toString().padStart(2, "0");
   const monthName = MONTH_NAMES_ID[month];
   ws.getCell("G3").value = `01 ${monthName} - ${lastDay} ${monthName}`;
+
+  // --- 2.1. Update Full Name in B1 and Role in G1 ---
+  if (signatures?.fullName) {
+    ws.getCell("B1").value = signatures.fullName;
+  }
+  if (signatures?.role) {
+    ws.getCell("G1").value = signatures.role;
+  }
 
   // --- 3. Build a map of day -> tasks ---
   const taskMap = new Map<number, string>();
@@ -158,8 +168,10 @@ export async function generateTimesheet(
         };
       }
 
-      // Only fill tasks on weekdays (Monday-Friday) - weekends are always empty and colored yellow
-      const taskText = isWeekend ? "" : (taskMap.get(dayOfMonth) || "");
+      // Get tasks for this day.
+      // We no longer explicitly clear weekend tasks to allow users to manually add them if needed.
+      // However, the background will still be yellow for weekends.
+      const taskText = taskMap.get(dayOfMonth) || "";
       const cellG = row.getCell(7); // Column G
 
       cellG.value = taskText;
