@@ -92,8 +92,7 @@ export default function Home() {
     null,
   );
   const [customTemplateName, setCustomTemplateName] = useState("");
-  const [directoryHandle, setDirectoryHandle] =
-    useState<FileSystemDirectoryHandle | null>(null);
+  const [directoryHandle, setDirectoryHandle] = useState<any>(null);
 
   const handleTemplateUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -187,7 +186,6 @@ export default function Home() {
         setShowWelcomeGuide(false);
         setShowSetupHelp(false);
         setShowNotepadHelp(false);
-        setFsOpen(false);
       }
     };
     window.addEventListener("keydown", handleKeyDown);

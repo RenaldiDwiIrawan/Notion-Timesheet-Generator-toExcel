@@ -9,7 +9,7 @@ interface StorageSectionProps {
   handleTemplateUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   templateInputRef: React.RefObject<HTMLInputElement | null>;
   templateBtnRef: React.RefObject<HTMLButtonElement | null>;
-  directoryHandle: FileSystemDirectoryHandle | null;
+  directoryHandle: any;
   chooseDirectory: () => void;
   outputDirBtnRef: React.RefObject<HTMLButtonElement | null>;
   outputFilenameFormat: string;
