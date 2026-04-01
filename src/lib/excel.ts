@@ -53,15 +53,20 @@ export async function generateTimesheet(
     approverName: string;
     approverDate: string;
     templatePath?: string;
+    templateBuffer?: Buffer;
   }
 ): Promise<Buffer> {
-  const templatePath =
-    signatures?.templatePath ||
-    process.env.TEMPLATE_PATH ||
-    path.join(process.cwd(), "public/template.xlsx");
-
   const wb = new ExcelJS.Workbook();
-  await wb.xlsx.readFile(templatePath);
+
+  if (signatures?.templateBuffer) {
+    await wb.xlsx.load(signatures.templateBuffer);
+  } else {
+    const templatePath =
+      signatures?.templatePath ||
+      process.env.TEMPLATE_PATH ||
+      path.join(process.cwd(), "public/template.xlsx");
+    await wb.xlsx.readFile(templatePath);
+  }
 
   const ws = wb.getWorksheet("Timesheet");
   if (!ws) throw new Error("Timesheet sheet not found in template");

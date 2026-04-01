@@ -18,6 +18,7 @@ export async function POST(request: NextRequest) {
       approverName,
       approverDate,
       templatePath,
+      templateData,
       outputFilenameFormat,
       outputDir,
       notionApiKey
@@ -44,6 +45,10 @@ export async function POST(request: NextRequest) {
     }
 
     // 2. Generate Excel
+    const templateBuffer = templateData
+      ? Buffer.from(templateData.split(",")[1], "base64")
+      : undefined;
+
     const buffer = await generateTimesheet(
       entries,
       year,
@@ -54,7 +59,8 @@ export async function POST(request: NextRequest) {
         submitterSignature: submitterSignature || null,
         approverName: approverName || "",
         approverDate: approverDate || "",
-        templatePath: templatePath || undefined
+        templatePath: templatePath || undefined,
+        templateBuffer
       }
     );
 

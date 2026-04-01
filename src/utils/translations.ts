@@ -13,6 +13,7 @@ export const translations = {
     downloadTemplate: "Download Notepad Template (.txt)",
     uploadNotepad: "Upload Filled Notepad",
     uploadNotepadPlaceholder: "Choose your filled .txt file...",
+    uploadTemplatePlaceholder: "Choose your .xlsx template...",
     notepadUploaded: "Notepad file loaded successfully!",
     notepadUploadError: "Failed to read file.",
     notepadDesc:
@@ -146,6 +147,7 @@ export const translations = {
     downloadTemplate: "Download Template Notepad (.txt)",
     uploadNotepad: "Upload Notepad yang Sudah Diisi",
     uploadNotepadPlaceholder: "Pilih file .txt Anda...",
+    uploadTemplatePlaceholder: "Pilih file .xlsx template Anda...",
     notepadUploaded: "File Notepad berhasil dimuat!",
     notepadUploadError: "Gagal membaca file.",
     notepadDesc:

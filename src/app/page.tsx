@@ -4,7 +4,6 @@ import { useState, useEffect, useRef } from "react";
 import WelcomeGuideModal from "../components/modals/WelcomeGuideModal";
 import NotepadHelpModal from "../components/modals/NotepadHelpModal";
 import SetupHelpModal from "../components/modals/SetupHelpModal";
-import FileSystemBrowserModal from "../components/modals/FileSystemBrowserModal";
 import Header from "../components/sections/Header";
 import SignatureSection from "../components/sections/SignatureSection";
 import ConfigurationSection from "../components/sections/ConfigurationSection";
@@ -12,7 +11,7 @@ import StorageSection from "../components/sections/StorageSection";
 
 
 import { translations } from "../utils/translations";
-import { NotionPage, FSEntry } from "../types";
+import { NotionPage } from "../types";
 
 export default function Home() {
   const now = new Date();
@@ -62,18 +61,9 @@ export default function Home() {
   const [approverName, setApproverName] = useState("");
   const [approverDate, setApproverDate] = useState(getLastDayStr(year, month));
 
-  const [templatePath, setTemplatePath] = useState("");
-  const [outputDir, setOutputDir] = useState("");
   const [outputFilenameFormat, setOutputFilenameFormat] = useState(
     "{VENDOR}_{NAME}_TIMESHEET_{MM}_{YYYY}",
   );
-
-  // File Browser State
-  const [fsOpen, setFsOpen] = useState(false);
-  const [fsMode, setFsMode] = useState<"file" | "directory" | null>(null);
-  const [fsPath, setFsPath] = useState("/");
-  const [fsEntries, setFsEntries] = useState<FSEntry[]>([]);
-  const [fsLoading, setFsLoading] = useState(false);
 
   const [showSetupHelp, setShowSetupHelp] = useState(false);
   const [showWelcomeGuide, setShowWelcomeGuide] = useState(false);
@@ -86,8 +76,9 @@ export default function Home() {
   const submitterNameRef = useRef<HTMLInputElement>(null);
   const approverNameRef = useRef<HTMLInputElement>(null);
   const pageIdRef = useRef<HTMLInputElement>(null);
-  const outputDirBtnRef = useRef<HTMLButtonElement>(null);
+  const templateInputRef = useRef<HTMLInputElement>(null);
   const templateBtnRef = useRef<HTMLButtonElement>(null);
+  const outputDirBtnRef = useRef<HTMLButtonElement>(null);
 
   const [shakingFields, setShakingFields] = useState<string[]>([]);
 
@@ -97,6 +88,33 @@ export default function Home() {
   };
 
   const [useCustomTemplate, setUseCustomTemplate] = useState(false);
+  const [customTemplateData, setCustomTemplateData] = useState<string | null>(
+    null,
+  );
+  const [customTemplateName, setCustomTemplateName] = useState("");
+  const [directoryHandle, setDirectoryHandle] =
+    useState<FileSystemDirectoryHandle | null>(null);
+
+  const handleTemplateUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setCustomTemplateData(reader.result as string);
+        setCustomTemplateName(file.name);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const chooseDirectory = async () => {
+    try {
+      const handle = await (window as any).showDirectoryPicker();
+      setDirectoryHandle(handle);
+    } catch (err) {
+      console.error("Directory picker error:", err);
+    }
+  };
 
   // Custom status
   const [status, setStatus] = useState<{
@@ -120,18 +138,6 @@ export default function Home() {
 
     const savedNotionApiKey = localStorage.getItem("timesheet_notionApiKey");
     if (savedNotionApiKey) setNotionApiKey(savedNotionApiKey);
-
-    const savedTemplatePath = localStorage.getItem("timesheet_templatePath");
-    if (savedTemplatePath) setTemplatePath(savedTemplatePath);
-
-    const savedUseCustomTemplate = localStorage.getItem(
-      "timesheet_useCustomTemplate",
-    );
-    if (savedUseCustomTemplate)
-      setUseCustomTemplate(savedUseCustomTemplate === "true");
-
-    const savedOutputDir = localStorage.getItem("timesheet_outputDir");
-    if (savedOutputDir) setOutputDir(savedOutputDir);
 
     const savedOutputFilenameFormat = localStorage.getItem(
       "timesheet_outputFilenameFormat",
@@ -230,64 +236,6 @@ export default function Home() {
     }
   };
 
-  const getIconForFile = (name: string, isDirectory: boolean) => {
-    if (isDirectory) return "📁";
-    if (name.endsWith(".xlsx") || name.endsWith(".xls")) return "📊";
-    return "📄";
-  };
-
-  const openFileBrowser = (mode: "file" | "directory") => {
-    setFsMode(mode);
-    setFsOpen(true);
-    let startPath = "/";
-    if (mode === "file" && templatePath)
-      startPath =
-        templatePath.substring(0, templatePath.lastIndexOf("/")) || "/";
-    if (mode === "directory" && outputDir) startPath = outputDir;
-
-    loadDir(startPath);
-  };
-
-  const loadDir = async (pathStr: string) => {
-    setFsLoading(true);
-    try {
-      const res = await fetch(`/api/fs?path=${encodeURIComponent(pathStr)}`);
-      const data = await res.json();
-      if (data.error) throw new Error();
-      setFsPath(data.currentPath);
-
-      const files = data.files;
-      const filtered =
-        fsMode === "file"
-          ? files.filter((f: any) => f.isDirectory || f.name.endsWith(".xlsx"))
-          : files;
-
-      if (data.parent) {
-        setFsEntries([
-          { name: "..", path: data.parent, isDirectory: true },
-          ...filtered,
-        ]);
-      } else {
-        setFsEntries(filtered);
-      }
-    } catch {
-      setStatus({ type: "error", message: t.fsFailed });
-    } finally {
-      setFsLoading(false);
-    }
-  };
-
-  const confirmFileBrowserSelection = (pathStr: string) => {
-    if (fsMode === "file") {
-      setTemplatePath(pathStr);
-      localStorage.setItem("timesheet_templatePath", pathStr);
-    } else {
-      setOutputDir(pathStr);
-      localStorage.setItem("timesheet_outputDir", pathStr);
-    }
-    setFsOpen(false);
-  };
-
   const searchPages = async () => {
     setSearching(true);
     setStatus(null);
@@ -323,9 +271,9 @@ export default function Home() {
       missingFields.push({ label: t.fieldSubmitterName, ref: submitterNameRef });
     if (!approverName.trim())
       missingFields.push({ label: t.fieldApproverName, ref: approverNameRef });
-    if (!outputDir)
+    if (!directoryHandle)
       missingFields.push({ label: t.fieldOutputDir, ref: outputDirBtnRef });
-    if (useCustomTemplate && !templatePath)
+    if (useCustomTemplate && !customTemplateData)
       missingFields.push({ label: t.fieldTemplatePath, ref: templateBtnRef });
 
     if (missingFields.length > 0) {
@@ -374,8 +322,7 @@ export default function Home() {
               submitterSignature,
               approverName,
               approverDate,
-              templatePath,
-              outputDir,
+              templateData: useCustomTemplate ? customTemplateData : null,
               outputFilenameFormat,
               notionApiKey,
             }
@@ -388,8 +335,7 @@ export default function Home() {
               submitterSignature,
               approverName,
               approverDate,
-              templatePath,
-              outputDir,
+              templateData: useCustomTemplate ? customTemplateData : null,
               outputFilenameFormat,
             };
 
@@ -405,7 +351,6 @@ export default function Home() {
         return;
       }
 
-      const savedPath = res.headers.get("X-Saved-Path");
       const disposition = res.headers.get("Content-Disposition");
       let downloadFilename = `timesheet.xlsx`;
       if (disposition && disposition.includes('filename="')) {
@@ -413,17 +358,44 @@ export default function Home() {
       }
 
       const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = downloadFilename;
-      a.click();
-      URL.revokeObjectURL(url);
 
-      setStatus({
-        type: "success",
-        message: `${t.genSuccess} ${savedPath ? ` Saved to: ${savedPath}` : ""}`,
-      });
+      // If user has picked a directory, save it there directly
+      if (directoryHandle) {
+        try {
+          const fileHandle = await directoryHandle.getFileHandle(
+            downloadFilename,
+            { create: true },
+          );
+          const writable = await (fileHandle as any).createWritable();
+          await writable.write(blob);
+          await writable.close();
+          setStatus({
+            type: "success",
+            message: `${t.genSuccess} Saved to folder: ${downloadFilename}`,
+          });
+        } catch (err) {
+          console.error("Failed to save to folder:", err);
+          // Fallback to normal download
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = downloadFilename;
+          a.click();
+          URL.revokeObjectURL(url);
+          setStatus({
+            type: "success",
+            message: `${t.genSuccess} (Downloaded to browser)`,
+          });
+        }
+      } else {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = downloadFilename;
+        a.click();
+        URL.revokeObjectURL(url);
+        setStatus({ type: "success", message: t.genSuccess });
+      }
     } catch {
       setStatus({ type: "error", message: t.genFailed });
     } finally {
@@ -453,9 +425,6 @@ export default function Home() {
       "timesheet_submitterName",
       "timesheet_approverName",
       "timesheet_notionApiKey",
-      "timesheet_templatePath",
-      "timesheet_useCustomTemplate",
-      "timesheet_outputDir",
       "timesheet_outputFilenameFormat",
     ];
     keysToRemove.forEach((k) => localStorage.removeItem(k));
@@ -465,13 +434,10 @@ export default function Home() {
     setSubmitterName("");
     setSubmitterSignature(null);
     setApproverName("");
-    setTemplatePath("");
-    setUseCustomTemplate(false);
     if (signatureRef.current) signatureRef.current.value = "";
     setCsvData(null);
     setCsvFileName("");
     if (csvInputRef.current) csvInputRef.current.value = "";
-    setOutputDir("");
     setOutputFilenameFormat("{VENDOR}_{NAME}_TIMESHEET_{MM}_{YYYY}");
     setStatus({ type: "success", message: t.resetData + " ✔️" });
     setTimeout(() => setStatus(null), 3000);
@@ -536,15 +502,15 @@ export default function Home() {
               isDark={isDark}
               useCustomTemplate={useCustomTemplate}
               setUseCustomTemplate={setUseCustomTemplate}
-              templatePath={templatePath}
-              setTemplatePath={setTemplatePath}
+              customTemplateName={customTemplateName}
+              handleTemplateUpload={handleTemplateUpload}
+              templateInputRef={templateInputRef}
               templateBtnRef={templateBtnRef}
-              outputDir={outputDir}
-              setOutputDir={setOutputDir}
+              directoryHandle={directoryHandle}
+              chooseDirectory={chooseDirectory}
               outputDirBtnRef={outputDirBtnRef}
               outputFilenameFormat={outputFilenameFormat}
               setOutputFilenameFormat={setOutputFilenameFormat}
-              openFileBrowser={openFileBrowser}
               shakingFields={shakingFields}
             />
           </div>
@@ -678,19 +644,6 @@ export default function Home() {
           setShowSetupHelp(false);
         }}
         t={t}
-      />
-
-      <FileSystemBrowserModal
-        show={fsOpen}
-        onClose={() => setFsOpen(false)}
-        t={t}
-        fsMode={fsMode as "file" | "directory"}
-        fsPath={fsPath}
-        fsLoading={fsLoading}
-        fsEntries={fsEntries}
-        loadDir={loadDir}
-        confirmSelection={confirmFileBrowserSelection}
-        getIconForFile={getIconForFile}
       />
     </div>
   );
