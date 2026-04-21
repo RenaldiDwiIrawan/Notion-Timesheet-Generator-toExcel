@@ -29,6 +29,13 @@ export default function Home() {
   const [notionApiKey, setNotionApiKey] = useState("");
   const [showApiKey, setShowApiKey] = useState(false);
 
+  const whatsappNumber = "08123451234";
+  const whatsappTemplate =
+    "Halo RENN! I'm using your Notion Timesheet app and I'd like to suggest: ";
+  const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
+    whatsappTemplate,
+  )}`;
+
   // Data source mode
   const [dataSource, setDataSource] = useState<"notion" | "notepad">("notion");
   const [csvData, setCsvData] = useState<string | null>(null);
