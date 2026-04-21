@@ -14,6 +14,8 @@ import StorageSection from "../components/sections/StorageSection";
 import { translations } from "../utils/translations";
 import { NotionPage, FSEntry } from "../types";
 
+const WHATSAPP_NUMBER = "08123451234";
+
 export default function Home() {
   const now = new Date();
   const [lang, setLang] = useState<"ENG" | "ID">("ENG");
@@ -29,11 +31,8 @@ export default function Home() {
   const [notionApiKey, setNotionApiKey] = useState("");
   const [showApiKey, setShowApiKey] = useState(false);
 
-  const whatsappNumber = "08123451234";
-  const whatsappTemplate =
-    "Halo RENN! I'm using your Notion Timesheet app and I'd like to suggest: ";
-  const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
-    whatsappTemplate,
+  const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
+    t.whatsappTemplate,
   )}`;
 
   // Data source mode

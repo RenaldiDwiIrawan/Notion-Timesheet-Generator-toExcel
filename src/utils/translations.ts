@@ -126,6 +126,7 @@ export const translations = {
     noFileChosen: "No file chosen",
     craftedBy: "CRAFTED BY",
     defaultFormat: "{VENDOR}_{NAME}_TIMESHEET_{MM}_{YYYY}",
+    whatsappTemplate: "Halo RENN! I'm using your Notion Timesheet app and I'd like to suggest: ",
   },
   ID: {
     title: "Timesheet Generator",
@@ -256,5 +257,6 @@ export const translations = {
     noFileChosen: "Belum ada file",
     craftedBy: "DIBUAT OLEH",
     defaultFormat: "{VENDOR_ANDA}_{NAMA_ANDA}_TIMESHEET_{MM}_{YYYY}",
+    whatsappTemplate: "Halo RENN! Saya menggunakan aplikasi Notion Timesheet Anda dan saya ingin menyarankan: ",
   },
 };
