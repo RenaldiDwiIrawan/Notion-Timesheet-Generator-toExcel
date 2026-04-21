@@ -20,7 +20,7 @@
 Add the following constant inside the `Home` component:
 
 ```typescript
-  const whatsappNumber = "08123451234";
+  const whatsappNumber = "087733236403";
   const whatsappTemplate = "Halo RENN! I'm using your Notion Timesheet app and I'd like to suggest: ";
   const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappTemplate)}`;
 ```
@@ -48,8 +48,8 @@ Insert the button code before the footer text:
             target="_blank"
             rel="noopener noreferrer"
             className={`fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-full px-6 py-3 text-sm font-bold text-white shadow-lg transition-all hover:scale-105 active:scale-95 ${
-              isDark 
-                ? "bg-gradient-to-r from-blue-600 to-indigo-600 shadow-blue-500/20" 
+              isDark
+                ? "bg-gradient-to-r from-blue-600 to-indigo-600 shadow-blue-500/20"
                 : "bg-gradient-to-r from-blue-500 to-indigo-500 shadow-blue-400/30"
             }`}
           >
@@ -71,7 +71,7 @@ git commit -m "feat: add floating whatsapp suggestion button"
 
 - [ ] **Step 1: Verify the link encoding**
 
-Check that the generated URL is: `https://wa.me/08123451234?text=Halo%20RENN!%20I'm%20using%20your%20Notion%20Timesheet%20app%20and%20I'd%20like%20to%20suggest%3A%20`
+Check that the generated URL is: `https://wa.me/087733236403?text=Halo%20RENN!%20I'm%20using%20your%20Notion%20Timesheet%20app%20and%20I'd%20like%20to%20suggest%3A%20`
 
 - [ ] **Step 2: Final Check**
 
