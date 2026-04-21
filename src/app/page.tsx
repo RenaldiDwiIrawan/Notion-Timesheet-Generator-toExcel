@@ -13,7 +13,7 @@ import StorageSection from "../components/sections/StorageSection";
 import { translations } from "../utils/translations";
 import { NotionPage, FSEntry } from "../types";
 
-const WHATSAPP_NUMBER = "087733236403";
+const WHATSAPP_NUMBER = "+6287733236403";
 
 export default function Home() {
 	const now = new Date();

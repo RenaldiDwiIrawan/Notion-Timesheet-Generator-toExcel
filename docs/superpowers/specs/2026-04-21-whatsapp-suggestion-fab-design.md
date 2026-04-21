@@ -24,9 +24,9 @@ Add a simple way for users to provide feedback or suggestions for the future of 
 - **Shadow:** Strong shadow (`shadow-lg` or `shadow-blue-500/20`) with hover effect (scale up).
 
 ### Integration Details
-- **Target Number:** `087733236403`
+- **Target Number:** `+6287733236403`
 - **Template Text:** `Halo RENN! I'm using your Notion Timesheet app and I'd like to suggest: `
-- **Action:** Opens `https://wa.me/087733236403?text={encoded_text}` in a new tab.
+- **Action:** Opens `https://wa.me/+6287733236403?text={encoded_text}` in a new tab.
 
 ## Implementation Plan
 1. Define the WhatsApp URL with the encoded template text.
