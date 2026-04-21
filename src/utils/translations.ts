@@ -127,6 +127,7 @@ export const translations = {
     craftedBy: "CRAFTED BY",
     defaultFormat: "{VENDOR}_{NAME}_TIMESHEET_{MM}_{YYYY}",
     whatsappTemplate: "Halo RENN! I'm using your Notion Timesheet app and I'd like to suggest: ",
+    whatsappSuggestion: "💡 Suggestion",
   },
   ID: {
     title: "Timesheet Generator",
@@ -258,5 +259,6 @@ export const translations = {
     craftedBy: "DIBUAT OLEH",
     defaultFormat: "{VENDOR_ANDA}_{NAMA_ANDA}_TIMESHEET_{MM}_{YYYY}",
     whatsappTemplate: "Halo RENN! Saya menggunakan aplikasi Notion Timesheet Anda dan saya ingin menyarankan: ",
+    whatsappSuggestion: "💡 Saran",
   },
 };

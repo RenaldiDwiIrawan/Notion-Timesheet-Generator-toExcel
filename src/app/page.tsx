@@ -598,6 +598,20 @@ export default function Home() {
             </div>
           )}
 
+          {/* WhatsApp Suggestion FAB */}
+          <a
+            href={whatsappUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-full px-6 py-3 text-sm font-bold text-white shadow-lg transition-all hover:scale-105 active:scale-95 ${
+              isDark
+                ? "bg-gradient-to-r from-blue-600 to-indigo-600 shadow-blue-500/20"
+                : "bg-gradient-to-r from-blue-500 to-indigo-500 shadow-blue-400/30"
+            }`}
+          >
+            <span>{t.whatsappSuggestion}</span>
+          </a>
+
           <div
             className={`mt-8 flex items-center justify-center text-[10px] font-bold tracking-widest ${isDark ? "text-zinc-600" : "text-zinc-400"}`}
           >
